@@ -1,0 +1,32 @@
+[project]
+name = "gs-2025"
+version = "0.0.1"
+description = "Um programa de terminal que conectar projetos a pessoas especializadas"
+authors = [
+    {name = "Elias Moura",email = "elias.smourayt@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">3.11,<4.0"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.1,<10.0.0)",
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "blue (>=0.9.1,<0.10.0)",
+    "isort (>=7.0.0,<8.0.0)",
+    "taskipy (>=1.14.1,<2.0.0)"
+]
+
+doc = [
+    "mkdocs-material (>=9.7.0,<10.0.0)",
+    "mkdocstrings (>=0.30.1,<0.31.0)",
+    "mkdocstrings-python (>=1.19.0,<2.0.0)"
+]
