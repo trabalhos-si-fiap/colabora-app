@@ -1,5 +1,3 @@
-
-
 class Project:
     def __init__(self, name, description, organization):
         self.name = name
