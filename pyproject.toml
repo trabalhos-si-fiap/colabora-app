@@ -1,5 +1,5 @@
 [project]
-name = "gs-2025"
+name = "colabora"
 version = "0.0.1"
 description = "Um programa de terminal que conectar projetos a pessoas especializadas"
 authors = [

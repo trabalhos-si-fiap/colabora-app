@@ -1,0 +1,16 @@
+site_name: Colabora
+repo_url: https://github.com/trabalhos-si-fiap/gs25
+repo_name: colabora
+edit_uri: tree/main/docs
+
+theme:
+  name: material
+  lenguage: pt-BR
+  #logo: assets/logo.png
+  #favicon: assets/favicon.png
+
+markdown_extensions:
+  - attrs_list
+  
+extra_css:
+  - stylesheets/extra.css
