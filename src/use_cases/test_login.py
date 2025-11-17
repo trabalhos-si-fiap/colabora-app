@@ -25,9 +25,8 @@ def login_use_case(mock_user_repository, mock_password_manager):
     return LoginUseCase(mock_user_repository, mock_password_manager)
 
 
-@patch('builtins.input', side_effect=['testuser', 'password123'])
 def test_execute_success(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
+    login_use_case, mock_user_repository, mock_password_manager
 ):
     """
     Testa o fluxo de login bem-sucedido.
@@ -38,7 +37,7 @@ def test_execute_success(
     mock_password_manager.check_password.return_value = True
 
     # Act
-    result = login_use_case.execute()
+    result = login_use_case.execute('testuser', 'password123')
 
     # Assert
     mock_user_repository.find_user.assert_called_once_with('testuser')
@@ -48,9 +47,8 @@ def test_execute_success(
     assert result == sample_user
 
 
-@patch('builtins.input', side_effect=['nonexistentuser', 'password123'])
 def test_execute_user_not_found(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
+    login_use_case, mock_user_repository, mock_password_manager
 ):
     """
     Testa o fluxo de falha quando o usuário não é encontrado.
@@ -69,9 +67,8 @@ def test_execute_user_not_found(
     assert result is None
 
 
-@patch('builtins.input', side_effect=['testuser', 'wrongpassword'])
 def test_execute_incorrect_password(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
+    login_use_case, mock_user_repository, mock_password_manager
 ):
     """
     Testa o fluxo de falha quando a senha está incorreta.
@@ -82,7 +79,7 @@ def test_execute_incorrect_password(
     mock_password_manager.check_password.return_value = False
 
     # Act
-    result = login_use_case.execute()
+    result = login_use_case.execute('testuser', 'wrongpassword')
 
     # Assert
     mock_user_repository.find_user.assert_called_once_with('testuser')

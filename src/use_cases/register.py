@@ -1,25 +1,49 @@
+from typing import Callable
+
 from src.models import User
 from src.repositories import UserRepository
 from src.security import PasswordManager
+from src.validators import email_validator, password_validator
 
 
-class RegisterUseCase:
-    def __init__(self, user_repository):
-        self.user_repository = user_repository
+class RegisterUserUseCase:
+    def __init__(
+        self,
+        user_repository: UserRepository,
+        password_manager: PasswordManager,
+        email_validator: Callable[[str], tuple[bool, str]],
+        password_validator: Callable[[str], tuple[bool, str]],
+    ):
+        self._user_repository = user_repository
+        self._password_manager = password_manager
+        self._email_validator = email_validator
+        self._password_validator = password_validator
 
-    def execute(self):
-        print('=== Bem vindo ao app xpto === ')
-        print('=== Registro de novo usuário === ')
+    def execute(
+        self, email: str, password: str
+    ) -> tuple[User | None, Exception | None]:
 
-        username = input('Digite o seu nome de usuário: ')
-        password = input('Digite a sua senha: ')
+        if self._user_repository.exists(email):
+            return None, ValueError('Usuário já existe')
 
-        hash_password, salt = PasswordManager().hash_password(password)
+        valid, msg = self._email_validator(email)
+        if not valid:
+            return None, ValueError(msg)
 
-        new_user = User(username, hash_password, salt)
+        valid, msg = self._password_validator(password)
+        if not valid:
+            return None, ValueError(msg)
 
-        self.user_repository.save(new_user)
+        hash_password, salt = self._password_manager.hash_password(password)
+        user = User(email=email, password=hash_password, salt=salt)
+        self._user_repository.save(user)
+        return user, None
 
     @staticmethod
     def factory():
-        return RegisterUseCase(UserRepository())
+        return RegisterUserUseCase(
+            UserRepository(),
+            PasswordManager(),
+            email_validator,
+            password_validator,
+        )

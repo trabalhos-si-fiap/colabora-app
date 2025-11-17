@@ -1,2 +1,2 @@
 from .login import LoginUseCase
-from .register import RegisterUseCase
+from .register import RegisterUserUseCase

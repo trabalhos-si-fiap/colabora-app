@@ -1,3 +1,9 @@
-from src.cli.view import View
+from src.tui.login import MyApp
 
-View().run()
+
+def main():
+    MyApp().run()
+
+
+if __name__ == '__main__':
+    main()

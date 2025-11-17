@@ -9,6 +9,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">3.11,<4.0"
 dependencies = [
+    "textual[dev] (>=6.6.0,<7.0.0)"
 ]
 
 
@@ -28,7 +29,7 @@ line_length = 79
 alint = "blue .; isort ."
 lint = "blue --check --diff . && isort --check --diff ."
 docs = "mkdocs serve"
-pre_test = "task list"
+pre_test = "task lint"
 test = "pytest -s -x --cov=src -vv"
 post_test = "coverage html"
 
