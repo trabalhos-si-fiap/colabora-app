@@ -6,6 +6,7 @@ from textual import on
 from pathlib import Path
 
 from src.tui.register import RegisterScreen
+from src.tui.user import UserScreen
 from src.use_cases.login import LoginUseCase
 
 css_path = Path(__file__).parent / 'css' / 'styles.css'
@@ -32,7 +33,7 @@ class MyApp(App):
 
         with Container(classes='bg with-border center'):
             with Container(classes='label'):
-                yield Markdown('# Bem vido ao app Colabora!')
+                yield Markdown('# 📒 Bem vido ao app Colabora! ✏️')
                 yield Label(
                     '✨ O aplicativo que conecta talentos a projetos de impacto social. ✨',
                     classes='text',
@@ -43,16 +44,27 @@ class MyApp(App):
                     classes='text',
                 )
 
-            yield Input(placeholder='Digite o seu e-mail', id='email-input')
+            yield Input(
+                placeholder='Digite o seu e-mail',
+                value='elias@gmail.com',
+                id='email-input',
+                classes='input-margin',
+            )
             yield Input(
                 placeholder='Digite a sua senha',
+                value='12345678*A',
                 password=True,
                 id='password-input',
+                classes='input-margin',
             )
 
             with Container(classes='buttons'):
                 yield Button('Entrar', variant='primary', id='login-button')
                 yield Button('Registrar', id='register-button')
+
+            with Container(classes='label'):
+                yield Label('Ctrl + "+" aumenta o zoom da interface.')
+                yield Label('Ctrl + "-" diminui o zoom da interface.')
 
         yield Footer()
 
@@ -65,7 +77,7 @@ class MyApp(App):
             user = LoginUseCase.factory().execute(email, password)
 
             if user:
-                self.query_one('#output').update(f'Olá {user}')
+                self.push_screen(UserScreen(user))
             else:
                 self.query_one('#output').update('E-mail ou senha incorretos')
 

@@ -1,0 +1,172 @@
+{
+    "Gestão e Administração": [
+        {
+            "name": "Gestão de Projetos",
+            "description": "Planejamento, execução e monitoramento de atividades e cronogramas."
+        },
+        {
+            "name": "Captação de Recursos",
+            "description": "Elaboração de propostas para editais e busca ativa por doadores."
+        },
+        {
+            "name": "Gestão Financeira",
+            "description": "Controle de fluxo de caixa, orçamentos e prestação de contas."
+        },
+        {
+            "name": "Consultoria Jurídica",
+            "description": "Orientação sobre direito do terceiro setor, contratos e compliance."
+        },
+        { 
+            "name": "Gestão de Voluntários",
+            "description": "Recrutamento, treinamento, engajamento e alocação de voluntários."
+        },
+        { 
+            "name": "Relações Institucionais",
+            "description": "Construção de parcerias com governo, empresas e outras ONGs."
+        }
+    ],
+    "Tecnologia e Design": [
+        {
+            "name": "Desenvolvimento Web",
+            "description": "Criação e manutenção de websites institucionais e landing pages."
+        },
+        {
+            "name": "Gestão de Redes Sociais",
+            "description": "Planejamento e criação de conteúdo para Instagram, Facebook e LinkedIn."
+        },
+        {
+            "name": "Design Gráfico",
+            "description": "Criação de identidade visual, banners para campanhas e materiais gráficos."
+        },
+        {
+            "name": "Análise de Dados",
+            "description": "Coleta e análise de dados para medição de impacto social."
+        },
+        {
+            "name": "Tráfego Pago (Ads)",
+            "description": "Criação e otimização de campanhas no Google Ads e Meta Ads."
+        },
+        {
+            "name": "UI/UX Design",
+            "description": "Prototipação e design de experiência para aplicativos ou sites."
+        },
+        {
+            "name": "Suporte de TI (Helpdesk)",
+            "description": "Manutenção de computadores, redes e suporte técnico para a equipe."
+        },
+        {
+            "name": "SEO (Otimização para Buscadores)",
+            "description": "Otimização do site da ONG para aparecer melhor em resultados do Google."
+        }
+    ],
+    "Comunicação e Pessoas": [
+        {
+            "name": "Redação e Storytelling",
+            "description": "Escrita de textos para relatórios de impacto, sites e campanhas."
+        },
+        {
+            "name": "Produção de Vídeo",
+            "description": "Gravação e edição de vídeos institucionais ou para redes sociais."
+        },
+        {
+            "name": "Fotografia",
+            "description": "Cobertura fotográfica de eventos e ações sociais."
+        },
+        {
+            "name": "Tradução e Interpretação",
+            "description": "Tradução de documentos ou interpretação para eventos."
+        },
+        {
+            "name": "Organização de Eventos",
+            "description": "Planejamento e execução de eventos de caridade, feiras ou workshops."
+        },
+        {
+            "name": "Assessoria de Imprensa",
+            "description": "Contato e relacionamento com jornalistas e veículos de mídia."
+        }
+    ],
+    "Atuação Direta e Suporte": [
+        {
+            "name": "Ensino e Facilitação",
+            "description": "Ministrar workshops, aulas de reforço ou treinamentos para beneficiários."
+        },
+        {
+            "name": "Atendimento Psicossocial",
+            "description": "Suporte psicológico ou de assistência social (requer qualificação)."
+        },
+        {
+            "name": "Recreação e Lazer",
+            "description": "Organização de atividades lúdicas e esportivas."
+        },
+        {
+            "name": "Cozinha Comunitária",
+            "description": "Organização e preparo de refeições em grande escala para distribuição."
+        },
+        {
+            "name": "Mentoria Profissional",
+            "description": "Orientação de carreira e desenvolvimento de habilidades para jovens/adultos."
+        },
+        { 
+            "name": "Logística e Distribuição",
+            "description": "Organização de estoque e entrega de doações (cestas básicas, roupas)."
+        }
+    ],
+    "Educação e Pedagogia": [
+        {
+            "name": "Alfabetização de Adultos",
+            "description": "Ensino de leitura e escrita para jovens e adultos (EJA)."
+        },
+        {
+            "name": "Reforço Escolar",
+            "description": "Apoio pedagógico em matérias específicas (matemática, português) para crianças."
+        },
+        {
+            "name": "Psicopedagogia",
+            "description": "Diagnóstico e intervenção em dificuldades de aprendizagem (requer qualificação)."
+        },
+        {
+            "name": "Desenvolvimento Infantil",
+            "description": "Atividades pedagógicas focadas na primeira infância e desenvolvimento motor/cognitivo."
+        }
+    ],
+    "Saúde e Bem-Estar": [
+        {
+            "name": "Atendimento Médico",
+            "description": "Consultas de clínica geral ou especialidades (requer qualificação)."
+        },
+        {
+            "name": "Enfermagem",
+            "description": "Cuidados básicos de saúde, curativos e administração de medicamentos."
+        },
+        {
+            "name": "Nutrição",
+            "description": "Elaboração de cardápios e orientação alimentar para comunidades."
+        },
+        {
+            "name": "Educação Física",
+            "description": "Promoção de atividades físicas e esportes como ferramenta de inclusão."
+        },
+        {
+            "name": "Fisioterapia",
+            "description": "Reabilitação e tratamento fisioterapêutico (requer qualificação)."
+        }
+    ],
+    "Infraestrutura e Serviços Manuais": [
+        {
+            "name": "Pequenos Reparos",
+            "description": "Manutenção predial básica: elétrica, hidráulica, pintura."
+        },
+        {
+            "name": "Construção Civil",
+            "description": "Apoio em mutirões de construção ou reforma de moradias."
+        },
+        {
+            "name": "Jardinagem e Horta Comunitária",
+            "description": "Criação e manutenção de espaços verdes e hortas urbanas."
+        },
+        {
+            "name": "Marcenaria",
+            "description": "Reparo ou construção de móveis e estruturas de madeira."
+        }
+    ]
+}

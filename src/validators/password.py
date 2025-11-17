@@ -12,4 +12,4 @@ def password_validator(password: str) -> tuple[bool, str]:
         return False, 'Senha deve conter pelo menos uma letra maiúscula.'
     if not any(char in string.punctuation for char in password):
         return False, 'Senha deve conter pelo menos um caractere especial.'
-    return True, 'Senha válida'
+    return True, None

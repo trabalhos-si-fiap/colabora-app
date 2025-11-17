@@ -2,15 +2,56 @@ Screen {
     align: center middle;
 }
 
-Input {
-    margin: 1 20;
-}
-
 Button {
     margin: 0 2;
     text-align: center;
 }
 
+.horizontal {
+    layout: horizontal;
+}
+
+.vertical {
+    layout: vertical;
+}
+
+Switch {
+    height: auto;
+    width: auto;
+}
+
+
+
+.label-switch {
+    height: 3;
+    content-align: center middle;
+    width: auto;
+}
+
+.container {
+    height: auto;
+    width: auto;
+}
+
+.input-margin {
+    margin: 1 16;
+}
+
+.input-margin-sm {
+    margin: 1 4;
+}
+
+
+.small-input {
+    width: 31%;
+}
+
+.horizontal-inputs {
+    /* background: red; */
+    width: 100%;
+    height: 3;
+    align: center middle;
+}
 
 .center {
     align: center middle;
@@ -24,6 +65,11 @@ Button {
     border: heavy rgb(12, 145, 12);
 }
 
+.btn-save-pw {
+    width: 100%;
+    height: 3;
+    align: center middle;
+}
 
 .label {
     /* background: rgb(255, 0, 0); */
@@ -32,6 +78,10 @@ Button {
     align: center middle;
     width: 100%;
     height: 20%;
+}
+
+.text-center {
+    text-align: center;
 }
 
 .text {
