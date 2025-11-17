@@ -26,6 +26,7 @@ profile = "black"
 line_length = 79
 
 [tool.taskipy.tasks]
+start = "python main.py"
 alint = "blue .; isort ."
 lint = "blue --check --diff . && isort --check --diff ."
 docs = "mkdocs serve"
