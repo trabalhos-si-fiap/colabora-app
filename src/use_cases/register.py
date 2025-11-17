@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 from src.models import User
 from src.repositories import UserRepository
@@ -21,7 +21,7 @@ class RegisterUserUseCase:
 
     def execute(
         self, email: str, password: str
-    ) -> tuple[User | None, Exception | None]:
+    ) -> tuple[Optional[User], Optional[Exception]]:
 
         if self._user_repository.exists(email):
             return None, ValueError('Usuário já existe')

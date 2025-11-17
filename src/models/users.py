@@ -1,6 +1,8 @@
 from datetime import date
 
-from src.models import Hability
+from loguru import logger
+
+from src.models import Hability, Project
 
 
 class Role:
@@ -9,19 +11,46 @@ class Role:
 
 
 class User:
-    def __init__(self, email: str, password: str, salt: str):
+    def __init__(
+        self,
+        email: str,
+        password: str,
+        salt: str,
+        first_name: str = None,
+        last_name: str = None,
+        birth_date: str = None,
+        phone: str = None,
+        id: int = None,
+        role: str = None,
+    ):
+        self.id = id
         self._email = email
         self._password = password
         self._salt = salt
-        self._role = Role.USER
+        self._role = Role.USER if role is None else role
 
-        self._first_name: str = None
-        self._last_name: str = None
-        self._birth_date: date = None
-        self._phone: str = None
+        self._first_name = first_name
+        self._last_name = last_name
+        self._birth_date = birth_date   # Mantemos como string (ISO)
+        self._phone = phone
 
-        self._habilities = set()  # Usar um set é mais eficiente
-        self._projects = {}
+        self._habilities: list[Hability] = list()
+        self._projects: list[Project] = list()
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'email': self._email,
+            'password': self._password,
+            'salt': self._salt,
+            'first_name': self._first_name,
+            'last_name': self._last_name,
+            'birth_date': self._birth_date,
+            'phone': self._phone,
+            'role': self._role,
+            'habilities': self._habilities,
+            'projects': self._projects,
+        }
 
     def __str__(self):
         return f'Usuário: {self._email} {self._role}'
@@ -53,19 +82,22 @@ class User:
     def add_hability(self, hability: Hability) -> None:
         if hability is None:
             return
-
-        self._habilities.add(hability)
+        self._habilities.append(hability)
+        logger.debug(
+            f'Add hability {hability.id} to user {self.id} | {len(self.habilities)=}'
+        )
 
     def remove_hability(self, hability: Hability) -> None:
         if hability is None:
             return
-        self._habilities.discard(hability)
+
+        if hability in self._habilities:
+            self._habilities.remove(hability)
 
     def has_hability(self, hability: Hability) -> bool:
         if hability is None:
             return False
         return hability in self._habilities
-
 
     @property
     def salt(self):

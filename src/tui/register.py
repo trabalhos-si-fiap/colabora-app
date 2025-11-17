@@ -1,9 +1,8 @@
-from textual.app import ComposeResult
-from textual.screen import Screen
-from textual.widgets import Button, Label, Header, Footer, Input, Markdown
-from textual.containers import Container
 from textual import on
-
+from textual.app import ComposeResult
+from textual.containers import Container
+from textual.screen import Screen
+from textual.widgets import Button, Footer, Header, Input, Label, Markdown
 
 from src.use_cases import RegisterUserUseCase
 
@@ -16,7 +15,7 @@ class RegisterScreen(Screen):
         with Container(classes='bg with-border center'):
             yield Markdown('# 📝 Tela de registro 📝')
             yield Label('Crie sua conta', id='title', classes='text')
-            yield Label('-', id='response', classes='text')
+            yield Label('', id='output', classes='text')
             yield Input(
                 placeholder='Seu e-mail',
                 id='email-input-register',
@@ -45,16 +44,18 @@ class RegisterScreen(Screen):
     def on_register_button_pressed(self, event: Button.Pressed):
         email = self.query_one('#email-input-register').value
         password = self.query_one('#password-input-register').value
-        confirm_password = self.query_one('#password-input-register-confirmation').value
+        confirm_password = self.query_one(
+            '#password-input-register-confirmation'
+        ).value
 
         if password != confirm_password:
-            self.query_one('#response').update('As senhas não coincidem.')
+            self.query_one('#output').update('⚠️  As senhas não coincidem.')
             return
 
         user, err = RegisterUserUseCase.factory().execute(email, password)
 
         if err:
-            self.query_one('#response').update(str(err))
+            self.query_one('#output').update('⚠️  ' + str(err))
         else:
             self.app.query_one('#output').update(
                 f'Você foi registrado! Agora, faça login.'

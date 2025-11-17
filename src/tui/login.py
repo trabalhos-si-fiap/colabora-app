@@ -1,13 +1,17 @@
-from textual.app import App, ComposeResult
-from textual.widgets import Button, Label, Header, Footer, Input, Markdown
-from textual.containers import Horizontal, Center, Vertical, Container
-from textual import on
-
 from pathlib import Path
 
+from textual import on
+from textual.app import App, ComposeResult
+from textual.containers import Center, Container, Horizontal, Vertical
+from textual.widgets import Button, Footer, Header, Input, Label, Markdown
+
+from src.repositories.hability import HabilityRepository
+from src.repositories.users import UserRepository
 from src.tui.register import RegisterScreen
 from src.tui.user import UserScreen
 from src.use_cases.login import LoginUseCase
+from src.use_cases.replace_password import ReplacePasswordUseCase
+from src.use_cases.update_user import UpdateUserUseCase
 
 css_path = Path(__file__).parent / 'css' / 'styles.css'
 
@@ -74,12 +78,20 @@ class MyApp(App):
             email = self.query_one('#email-input').value
             password = self.query_one('#password-input').value
 
-            user = LoginUseCase.factory().execute(email, password)
+            user, err_msg = LoginUseCase.factory().execute(email, password)
 
             if user:
-                self.push_screen(UserScreen(user))
+                self.push_screen(
+                    UserScreen(
+                        user=user,
+                        user_repository=UserRepository(),
+                        hability_repository=HabilityRepository(),
+                        update_user_use_case=UpdateUserUseCase.factory(),
+                        replace_password_use_case=ReplacePasswordUseCase.factory(),
+                    )
+                )
             else:
-                self.query_one('#output').update('E-mail ou senha incorretos')
+                self.query_one('#output').update('⚠️  ' + err_msg)
 
         elif event.button.id == 'register-button':
             self.push_screen('register')

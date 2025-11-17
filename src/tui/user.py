@@ -1,20 +1,22 @@
+from loguru import logger
+from textual import on
 from textual.app import ComposeResult
+from textual.containers import Container, Horizontal, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
-    Checkbox,
     Collapsible,
-    Header,
     Footer,
+    Header,
     Input,
     Label,
     Static,
     Switch,
 )
-from textual.containers import Container, VerticalScroll, Horizontal
-from textual import on
 
-from src.models import User, Hability
+from src.models import User
+from src.repositories.hability import HabilityRepository
+from src.repositories.users import UserRepository
 from src.use_cases import UpdateUserUseCase
 from src.use_cases.replace_password import ReplacePasswordUseCase
 
@@ -26,15 +28,24 @@ class UserScreen(Screen):
         ('l', 'logout', 'Logout'),
     ]
 
-    def __init__(self, user: User) -> None:
-        self.user = user
-        self.habilities_data = Hability.populate()
+    def __init__(
+        self,
+        user: User,
+        user_repository: UserRepository,
+        hability_repository: HabilityRepository,
+        update_user_use_case: UpdateUserUseCase,
+        replace_password_use_case: ReplacePasswordUseCase,
+    ) -> None:
+        self.user = user_repository.get_by_id_with_habilities(user.id)
+        self.habilities_data = hability_repository.get_dict_by_domain()
         # Cria um mapa de nome da habilidade para o objeto Hability para fácil acesso
         self.hability_map = {
             hability.name: hability
             for domain_habilities in self.habilities_data.values()
             for hability in domain_habilities
         }
+        self._update_user_uc = update_user_use_case
+        self._replace_password_uc = replace_password_use_case
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -145,13 +156,16 @@ class UserScreen(Screen):
     def on_button_pressed(self, event: Button.Pressed):
         if event.button.id == 'save-button':
 
-            self.user = UpdateUserUseCase.factory().execute(
-                email=self.user.email,
+            updated_user = self._update_user_uc.execute(
+                id=self.user.id,
                 first_name=self.query_one('#first-name').value,
                 last_name=self.query_one('#last-name').value,
                 birth_date=self.query_one('#birth-date').value,
                 habilities=self.user.habilities,
             )
+
+            if updated_user:
+                self.user = updated_user
 
             self.query_one('#projects-count').update(
                 f'{len(self.user.projects)}'
@@ -172,14 +186,14 @@ class UserScreen(Screen):
                 self.query_one('#output-pw').update('As senhas não conferem!')
                 return
 
-            _, err = ReplacePasswordUseCase.factory().execute(
-                email=self.user.email, new_password=new_password
+            _, err = self._replace_password_uc.execute(
+                id=self.user.id, new_password=new_password
             )
 
             if err:
                 self.query_one('#output-pw').update(err)
                 return
-            
+
             self.query_one('#output-pw').update('Senha alterada com sucesso!')
 
     @on(Button.Pressed, '#logout-button')
@@ -194,6 +208,7 @@ class UserScreen(Screen):
 
         if hability:
             if event.value:  # Switch foi ativado
+                logger.debug(f'Switch ativado para habilidade {hability.id}')
                 self.user.add_hability(hability)
             else:  # Switch foi desativado
                 self.user.remove_hability(hability)

@@ -1,8 +1,8 @@
 from typing import Callable
+
 from src.repositories.users import UserRepository
 from src.security.password import PasswordManager
 from src.validators import password_validator
-
 
 
 class ReplacePasswordUseCase:
@@ -10,19 +10,23 @@ class ReplacePasswordUseCase:
         self,
         user_repository: UserRepository,
         password_manager: PasswordManager,
-        password_validator: Callable[[str], tuple[bool, str]]
+        password_validator: Callable[[str], tuple[bool, str]],
     ):
         self.user_repository = user_repository
         self.password_manager = password_manager
         self.password_validator = password_validator
 
-    def execute(self, email: str, new_password: str) -> tuple[bool | None, str | None]:
-        if not self.user_repository.exists(email):
-            return
+    def execute(
+        self, id: int, new_password: str
+    ) -> tuple[bool | None, str | None]:
+        if not self.user_repository.exists(id):
+            return False, 'Usuário não encontrado.'
 
-        user = self.user_repository.find_user(email)
+        user = self.user_repository.get_by_id_with_habilities(id)
+        if not user:
+            return False, 'Usuário não encontrado.'
 
-        _, err = self.password_validator(new_password)
+        valid, err = self.password_validator(new_password)
 
         if err:
             return False, err
@@ -39,7 +43,5 @@ class ReplacePasswordUseCase:
     @staticmethod
     def factory():
         return ReplacePasswordUseCase(
-            UserRepository(), 
-            PasswordManager(),
-            password_validator
+            UserRepository(), PasswordManager(), password_validator
         )

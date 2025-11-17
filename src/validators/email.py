@@ -8,4 +8,4 @@ def email_validator(email: str) -> tuple[bool, str]:
     if '.' not in email:
         return False, 'E-mail deve conter ".".'
 
-    return True, 'E-mail válido.'
+    return True, None

@@ -1,92 +1,71 @@
-from unittest.mock import MagicMock, patch
+import sqlite3
 
-import pytest
-
-from src.exceptions import UserNotFoundException
-from src.models import User
+from src.repositories.users import UserRepository
+from src.security.password import PasswordManager
 from src.use_cases.login import LoginUseCase
 
 
-@pytest.fixture
-def mock_user_repository():
-    """Um fixture do pytest para criar um mock do UserRepository."""
-    return MagicMock()
-
-
-@pytest.fixture
-def mock_password_manager():
-    """Um fixture do pytest para criar um mock do PasswordManager."""
-    return MagicMock()
-
-
-@pytest.fixture
-def login_use_case(mock_user_repository, mock_password_manager):
-    """Um fixture que cria uma instância de LoginUseCase com mocks."""
-    return LoginUseCase(mock_user_repository, mock_password_manager)
-
-
-@patch('builtins.input', side_effect=['testuser', 'password123'])
-def test_execute_success(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
+def test_login_with_valid_credentials(
+    db_connection: sqlite3.Connection, registered_user
 ):
     """
-    Testa o fluxo de login bem-sucedido.
+    Testa o cenário de sucesso, onde um usuário com credenciais corretas
+    consegue fazer login.
     """
-    # Arrange
-    sample_user = User('testuser', b'hashed_password', b'salt')
-    mock_user_repository.find_user.return_value = sample_user
-    mock_password_manager.check_password.return_value = True
+    # --- Arrange ---
+    user_repo = UserRepository(db_connection=db_connection)
+    password_manager = PasswordManager()
+    login_uc = LoginUseCase(user_repo, password_manager)
 
-    # Act
-    result = login_use_case.execute()
+    user, password = registered_user
 
-    # Assert
-    mock_user_repository.find_user.assert_called_once_with('testuser')
-    mock_password_manager.check_password.assert_called_once_with(
-        'password123', sample_user
-    )
-    assert result == sample_user
+    # --- Act ---
+    logged_in_user, error = login_uc.execute(user.email, password)
+
+    # --- Assert ---
+    assert error is None
+    assert logged_in_user is not None
+    assert logged_in_user.id == user.id
+    assert logged_in_user.email == user.email
 
 
-@patch('builtins.input', side_effect=['nonexistentuser', 'password123'])
-def test_execute_user_not_found(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
+def test_login_with_invalid_password(
+    db_connection: sqlite3.Connection, registered_user
 ):
     """
-    Testa o fluxo de falha quando o usuário não é encontrado.
+    Testa a falha de login quando a senha está incorreta.
+    Cobre o `else` do `check_password`.
     """
-    # Arrange
-    mock_user_repository.find_user.side_effect = UserNotFoundException(
-        'Usuário não encontrado'
+    # --- Arrange ---
+    user_repo = UserRepository(db_connection=db_connection)
+    password_manager = PasswordManager()
+    login_uc = LoginUseCase(user_repo, password_manager)
+
+    user, _ = registered_user
+
+    # --- Act ---
+    logged_in_user, error = login_uc.execute(user.email, 'wrong-password')
+
+    # --- Assert ---
+    assert logged_in_user is None
+    assert error == 'Credenciais inválidas.'
+
+
+def test_login_with_non_existent_user(db_connection: sqlite3.Connection):
+    """
+    Testa a falha de login quando o e-mail não está cadastrado.
+    Cobre o `if user is None:`.
+    """
+    # --- Arrange ---
+    user_repo = UserRepository(db_connection=db_connection)
+    password_manager = PasswordManager()
+    login_uc = LoginUseCase(user_repo, password_manager)
+
+    # --- Act ---
+    logged_in_user, error = login_uc.execute(
+        'no-one@example.com', 'any-password'
     )
 
-    # Act
-    result = login_use_case.execute()
-
-    # Assert
-    mock_user_repository.find_user.assert_called_once_with('nonexistentuser')
-    mock_password_manager.check_password.assert_not_called()
-    assert result is None
-
-
-@patch('builtins.input', side_effect=['testuser', 'wrongpassword'])
-def test_execute_incorrect_password(
-    mock_input, login_use_case, mock_user_repository, mock_password_manager
-):
-    """
-    Testa o fluxo de falha quando a senha está incorreta.
-    """
-    # Arrange
-    sample_user = User('testuser', b'hashed_password', b'salt')
-    mock_user_repository.find_user.return_value = sample_user
-    mock_password_manager.check_password.return_value = False
-
-    # Act
-    result = login_use_case.execute()
-
-    # Assert
-    mock_user_repository.find_user.assert_called_once_with('testuser')
-    mock_password_manager.check_password.assert_called_once_with(
-        'wrongpassword', sample_user
-    )
-    assert result is None
+    # --- Assert ---
+    assert logged_in_user is None
+    assert error == 'Credenciais inválidas.'
