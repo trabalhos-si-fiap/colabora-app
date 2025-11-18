@@ -1,0 +1,5 @@
+todo:
+  Enteder se é possível deixar o contador de projetos e habilidades reativo (atualmente só atualiza se eu der save)
+  
+  Criar uma forma de o usuário ver/filtrar os projetos que ele está inscrito na tela de projetos.
+  Criar regra de negócio que não deixa o usuário se inscrever em um projeto no qual ele não possui nenhuma habilidade requerida no projeto

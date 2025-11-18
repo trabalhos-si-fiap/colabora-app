@@ -2,7 +2,7 @@ from typing import Optional
 
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll
+from textual.containers import VerticalScroll, Container
 from textual.screen import Screen
 from textual.widgets import (
     Button,
@@ -45,18 +45,26 @@ class ProjectScreen(Screen):
 
         yield Header(show_clock=True)
         with VerticalScroll(classes='bg with-border'):
-            yield Static('Projetos Disponíveis', classes='text title')
+            yield Static() # Para funcionar o espaçamento
+            yield Static(
+                'Projetos Disponíveis', 
+                classes='text title pb pt'
+            )
             yield Static(
                 'Explore os projetos e inscreva-se naqueles que te interessam.',
-                classes='text',
+                classes='text pb',
             )
 
             yield Input(
-                placeholder='🔎 Buscar por nome ou descrição...',
+                placeholder='🔎  Buscar por nome ou descrição...',
                 id='search-project',
+                classes='input-margin-sm'
             )
             # Este contêiner será preenchido dinamicamente
-            yield VerticalScroll(id='project-list-container')
+            yield VerticalScroll(
+                id='project-list-container',
+                classes='container'
+                )
 
         yield Footer()
 
@@ -131,16 +139,23 @@ class ProjectScreen(Screen):
         if self.user:
             is_subscribed = self.user.is_subscribed_to(project)
             children.append(
-                Button(
+                Container(
+                    Button(
                     'Desinscrever-se' if is_subscribed else 'Inscrever-se',
                     variant='error' if is_subscribed else 'success',
                     id=f'subscribe_btn_{project.id}',
-                    classes='subscribe-button',
+                    classes='subscribe-button center',
+                    ),
+                    classes='btn-save-pw mt'   
                 )
             )
 
         collapsible = Collapsible(
-            *children, title=project.name, id=f'project_{project.id}'
+            *children, 
+            title=project.name,
+            id=f'project_{project.id}',
+            classes='input-margin-sm'
+            
         )
         collapsible.border_subtitle = (
             f'{len(project.habilities)} habilidades necessárias'
