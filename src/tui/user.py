@@ -40,7 +40,14 @@ class UserScreen(Screen):
         update_user_use_case: UpdateUserUseCase,
         replace_password_use_case: ReplacePasswordUseCase,
     ) -> None:
-        self.user = user_repository.get_by_id_with_habilities(user.id)
+        found_user = user_repository.get_by_id_with_all_relations(user.id)
+        
+        if found_user is None:
+            self.app.pop_screen()
+            return
+        
+        self.user: User = found_user
+        
         self.habilities_data = hability_repository.get_dict_by_domain()
         # Cria um mapa de nome da habilidade para o objeto Hability para fácil acesso
         self.hability_map = {
@@ -52,7 +59,7 @@ class UserScreen(Screen):
         self._replace_password_uc = replace_password_use_case
         super().__init__()
 
-    def compose(self) -> ComposeResult:
+    def compose(self) -> ComposeResult:        
         yield Header(show_clock=True)
         with VerticalScroll(classes='bg with-border'):
             yield Static(
