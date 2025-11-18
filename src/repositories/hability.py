@@ -28,6 +28,16 @@ class HabilityRepository(BaseRepository):
             result[hability.domain].append(hability)
         return result
 
+    def find_by_names(self, names: list[str]) -> list[Hability]:
+        """Busca uma lista de habilidades por seus nomes."""
+        if not names:
+            return []
+        placeholders = ','.join('?' for _ in names)
+        sql = f'SELECT * FROM {self.table_name} WHERE name IN ({placeholders})'
+        self.cursor.execute(sql, names)
+        rows = self.cursor.fetchall()
+        return [self._map_row_to_model(row) for row in rows]
+
     def _populate(self) -> dict:
         populated_data = {}
 

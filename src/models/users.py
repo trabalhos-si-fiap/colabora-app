@@ -99,6 +99,21 @@ class User:
             return False
         return hability in self._habilities
 
+    def is_subscribed_to(self, project: Project) -> bool:
+        """Verifica se o usuário está inscrito em um projeto específico."""
+        if project is None or project.id is None:
+            return False
+        return any(p.id == project.id for p in self._projects)
+
+    def add_project(self, project: Project) -> None:
+        """Inscreve o usuário em um projeto."""
+        if project and not self.is_subscribed_to(project):
+            self._projects.append(project)
+
+    def remove_project(self, project: Project) -> None:
+        """Remove a inscrição do usuário de um projeto."""
+        self._projects = [p for p in self._projects if p.id != project.id]
+
     @property
     def salt(self):
         return self._salt

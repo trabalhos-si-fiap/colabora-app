@@ -1,0 +1,52 @@
+{
+    "projects": [
+        {
+            "name": "Website Institucional para ONG 'Criança Feliz'",
+            "description": "Desenvolvimento de um novo website em WordPress para a ONG, com foco em design responsivo, captação de doações e galeria de fotos. O objetivo é aumentar a visibilidade online e facilitar o engajamento de novos doadores.",
+            "organization_id": 1,
+            "required_habilities": [
+                "Desenvolvimento Web",
+                "Design Gráfico",
+                "SEO (Otimização para Buscadores)"
+            ]
+        },
+        {
+            "name": "Campanha de Arrecadação de Alimentos 'Natal Solidário'",
+            "description": "Planejamento e execução de uma campanha de marketing digital para arrecadar cestas básicas. A campanha incluirá posts em redes sociais, vídeos curtos e anúncios pagos para alcançar um público maior.",
+            "organization_id": 1,
+            "required_habilities": [
+                "Gestão de Redes Sociais",
+                "Produção de Vídeo",
+                "Tráfego Pago (Ads)"
+            ]
+        },
+        {
+            "name": "Reforma da Cozinha Comunitária 'Mãos na Massa'",
+            "description": "Mutirão para reformar a cozinha de uma organização que serve refeições diárias para a comunidade. Precisamos de ajuda com pintura, pequenos reparos elétricos e hidráulicos, e organização do espaço.",
+            "organization_id": 2,
+            "required_habilities": [
+                "Pequenos Reparos",
+                "Construção Civil",
+                "Logística e Distribuição"
+            ]
+        },
+        {
+            "name": "Programa de Mentoria para Jovens 'Futuro Brilhante'",
+            "description": "Conectar profissionais experientes com jovens em situação de vulnerabilidade para oferecer mentoria de carreira, desenvolvimento de habilidades e orientação para o primeiro emprego.",
+            "organization_id": 2,
+            "required_habilities": [
+                "Mentoria Profissional",
+                "Gestão de Voluntários"
+            ]
+        },
+        {
+            "name": "Oficinas de Alfabetização Digital para Idosos",
+            "description": "Ministrar aulas semanais para ensinar idosos a usar smartphones, redes sociais e aplicativos de comunicação, promovendo a inclusão digital e a conexão com familiares.",
+            "organization_id": 1,
+            "required_habilities": [
+                "Ensino e Facilitação",
+                "Suporte de TI (Helpdesk)"
+            ]
+        }
+    ]
+}

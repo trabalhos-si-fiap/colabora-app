@@ -1,8 +1,8 @@
-from src.tui.login import MyApp
+from src.tui.login import ColaboraApp
 
 
 def main():
-    MyApp().run()
+    ColaboraApp().run()
 
 
 if __name__ == '__main__':

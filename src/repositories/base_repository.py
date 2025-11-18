@@ -60,6 +60,7 @@ class BaseRepository:
         data.pop('organization', None)
         data.pop('habilities', None)
         data.pop('projects', None)
+        data.pop('hability_ids', None)
         return data
 
     def _create(self, model_instance: T) -> T:

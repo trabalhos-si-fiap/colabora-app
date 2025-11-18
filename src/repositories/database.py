@@ -128,6 +128,14 @@ class Database:
             FOREIGN KEY (hability_id) REFERENCES Hability(id)
         );
 
+        CREATE TABLE IF NOT EXISTS User_Projects (
+            user_id INTEGER,
+            project_id INTEGER,
+            PRIMARY KEY (user_id, project_id),
+            FOREIGN KEY (user_id) REFERENCES User(id),
+            FOREIGN KEY (project_id) REFERENCES Project(id)
+        );
+
         CREATE TABLE IF NOT EXISTS Project_Habilities (
             project_id INTEGER,
             hability_id INTEGER,
@@ -158,6 +166,8 @@ class Database:
         CREATE INDEX IF NOT EXISTS idx_user_habilities_hability ON User_Habilities(hability_id);
         CREATE INDEX IF NOT EXISTS idx_project_habilities_project ON Project_Habilities(project_id);
         CREATE INDEX IF NOT EXISTS idx_project_habilities_hability ON Project_Habilities(hability_id);
+        CREATE INDEX IF NOT EXISTS idx_user_projects_user ON User_Projects(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_projects_project ON User_Projects(project_id);
         """
         logger.debug('Criando índices para performance O(log N)...')
         self._execute_script(index_script)

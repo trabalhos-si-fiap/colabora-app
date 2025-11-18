@@ -2,21 +2,27 @@ from pathlib import Path
 
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import Center, Container, Horizontal, Vertical
-from textual.widgets import Button, Footer, Header, Input, Label, Markdown
+from textual.containers import Container
+from textual.widgets import Button, Footer, Header, Input, Label, Markdown, Static
 
-from src.repositories.hability import HabilityRepository
-from src.repositories.users import UserRepository
-from src.tui.register import RegisterScreen
+from src.repositories import (
+    HabilityRepository,
+    ProjectRepository,
+    UserRepository,
+)
+from src.tui.project import ProjectScreen
 from src.tui.user import UserScreen
-from src.use_cases.login import LoginUseCase
-from src.use_cases.replace_password import ReplacePasswordUseCase
-from src.use_cases.update_user import UpdateUserUseCase
+from src.tui.register import RegisterScreen
+from src.use_cases import (
+    LoginUseCase,
+    ReplacePasswordUseCase,
+    UpdateUserUseCase,
+)
 
 css_path = Path(__file__).parent / 'css' / 'styles.css'
 
 
-class MyApp(App):
+class ColaboraApp(App):
     """Um aplicativo TUI para o Colabora."""
 
     TITLE = 'Colabora APP'
@@ -32,6 +38,15 @@ class MyApp(App):
         'register': RegisterScreen,
     }
 
+    def __init__(self):
+        super().__init__()
+        self.user_repository = UserRepository()
+        self.project_repository = ProjectRepository()
+        self.hability_repository = HabilityRepository()
+        self.login_use_case = LoginUseCase.factory()
+        self.update_user_use_case = UpdateUserUseCase.factory()
+        self.replace_password_use_case = ReplacePasswordUseCase.factory()
+
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
 
@@ -39,12 +54,12 @@ class MyApp(App):
             with Container(classes='label'):
                 yield Markdown('# 📒 Bem vido ao app Colabora! ✏️')
                 yield Label(
-                    '✨ O aplicativo que conecta talentos a projetos de impacto social. ✨',
+                    '✨ Conectando talentos a projetos de impacto social. ✨',
                     classes='text',
                 )
-                yield Label(
+                yield Static(
                     'Entre em sua conta ou registre-se.',
-                    id='output',
+                    id='login-output',
                     classes='text',
                 )
 
@@ -65,6 +80,7 @@ class MyApp(App):
             with Container(classes='buttons'):
                 yield Button('Entrar', variant='primary', id='login-button')
                 yield Button('Registrar', id='register-button')
+                yield Button('Ver Projetos', id='view-projects-button')
 
             with Container(classes='label'):
                 yield Label('Ctrl + "+" aumenta o zoom da interface.')
@@ -78,20 +94,29 @@ class MyApp(App):
             email = self.query_one('#email-input').value
             password = self.query_one('#password-input').value
 
-            user, err_msg = LoginUseCase.factory().execute(email, password)
+            user, err_msg = self.login_use_case.execute(email, password)
 
             if user:
                 self.push_screen(
                     UserScreen(
                         user=user,
-                        user_repository=UserRepository(),
-                        hability_repository=HabilityRepository(),
-                        update_user_use_case=UpdateUserUseCase.factory(),
-                        replace_password_use_case=ReplacePasswordUseCase.factory(),
+                        user_repository=self.user_repository,
+                        hability_repository=self.hability_repository,
+                        update_user_use_case=self.update_user_use_case,
+                        replace_password_use_case=self.replace_password_use_case,
                     )
                 )
             else:
-                self.query_one('#output').update('⚠️  ' + err_msg)
+                self.query_one('#login-output').update('⚠️  ' + err_msg)
 
         elif event.button.id == 'register-button':
             self.push_screen('register')
+
+        elif event.button.id == 'view-projects-button':
+            self.push_screen(
+                ProjectScreen(
+                    user=None,  # Usuário não logado
+                    user_repository=self.user_repository,
+                    project_repository=self.project_repository,
+                )
+            )

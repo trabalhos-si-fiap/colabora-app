@@ -14,11 +14,15 @@ from textual.widgets import (
     Switch,
 )
 
-from src.models import User
-from src.repositories.hability import HabilityRepository
-from src.repositories.users import UserRepository
-from src.use_cases import UpdateUserUseCase
-from src.use_cases.replace_password import ReplacePasswordUseCase
+from src.models import Role, User
+from src.repositories import (
+    HabilityRepository,
+    ProjectRepository,
+    UserRepository,
+)
+from src.tui.admin import AdminScreen
+from src.tui.project import ProjectScreen
+from src.use_cases import ReplacePasswordUseCase, UpdateUserUseCase
 
 
 class UserScreen(Screen):
@@ -148,6 +152,13 @@ class UserScreen(Screen):
                 yield Button(
                     'Salvar Alterações', variant='primary', id='save-button'
                 )
+                yield Button(
+                    'Ver Projetos', variant='default', id='projects-button'
+                )
+                if self.user.role == Role.ADMIN:
+                    yield Button(
+                        'Painel Admin', variant='warning', id='admin-button'
+                    )
                 yield Button('Logout', id='logout-button')
 
         yield Footer()
@@ -195,6 +206,18 @@ class UserScreen(Screen):
                 return
 
             self.query_one('#output-pw').update('Senha alterada com sucesso!')
+
+        elif event.button.id == 'projects-button':
+            self.app.push_screen(
+                ProjectScreen(
+                    user=self.user,
+                    user_repository=UserRepository(),
+                    project_repository=ProjectRepository(),
+                )
+            )
+
+        elif event.button.id == 'admin-button':
+            self.app.push_screen(AdminScreen())
 
     @on(Button.Pressed, '#logout-button')
     def action_logout(self) -> None:
