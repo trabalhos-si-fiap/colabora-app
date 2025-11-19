@@ -1,6 +1,6 @@
 import sqlite3
 
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.security.password import PasswordManager
 from src.use_cases.login import LoginUseCase
 

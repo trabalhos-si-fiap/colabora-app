@@ -19,8 +19,7 @@ class ProjectRepository(BaseRepository):
         # Garante que as dependências sejam inicializadas (e populadas) primeiro
         self.hability_repo = HabilityRepository(db_connection)
         self.org_repo = OrganizationRepository(db_connection)
-        if db_connection is None and self.count() == 0:
-            self._populate()
+
 
     def save(self, project: Project) -> Project:
         """
@@ -59,40 +58,32 @@ class ProjectRepository(BaseRepository):
             self.conn.rollback()
             raise
 
-    def _populate(self):
-        """Popula o banco de dados com projetos do arquivo JSON."""
-        logger.info('Populando tabela de Projetos...')
-        file_path = SEEDS_PATH / 'projects.json'
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            for project_data in data['projects']:
-                habilities_names = project_data.pop('required_habilities', [])
-                project = Project(**project_data)
-                project.habilities = self.hability_repo.find_by_names(
-                    habilities_names
-                )
-                self.save(project)
-        logger.info(
-            f'Tabela de Projetos populada com {self.count()} projetos.'
-        )
 
-    def find_by_ids_with_habilities(self, project_ids: list[int]) -> list[Project]:
+    def find_by_ids_with_all_relations(self, project_ids: list[int]) -> list[Project]:
         """
-        Busca uma lista de projetos por seus IDs e carrega suas habilidades
-        de forma otimizada (evitando N+1 queries).
+        Busca uma lista de projetos por seus IDs e carrega suas relações
+        (habilidades e organização) de forma otimizada (evitando N+1 queries).
         """
         if not project_ids:
             return []
 
         # 1. Busca todos os projetos de uma vez
         placeholders = ','.join('?' for _ in project_ids)
-        sql_projects = f'SELECT * FROM {self.table_name} WHERE id IN ({placeholders})'
+        sql_projects = f'SELECT * FROM {self.table_name} WHERE id IN ({placeholders}) ORDER BY name'
         self.cursor.execute(sql_projects, project_ids)
-        projects_dict = {
-            p.id: p for p in [self._map_row_to_model(r) for r in self.cursor.fetchall()]
-        }
+        projects = [self._map_row_to_model(r) for r in self.cursor.fetchall()]
+        projects_dict = {p.id: p for p in projects}
 
-        # 2. Busca todas as habilidades para esses projetos de uma vez
+        # 2. Busca todas as organizações necessárias de uma vez
+        org_ids = {p.organization_id for p in projects if p.organization_id}
+        if org_ids:
+            orgs = self.org_repo.find_by_ids(list(org_ids))
+            orgs_dict = {o.id: o for o in orgs}
+            for project in projects:
+                if project.organization_id in orgs_dict:
+                    project.organization = orgs_dict[project.organization_id]
+
+        # 3. Busca todas as habilidades para esses projetos de uma vez
         sql_habilities = f"""
             SELECT p.id as project_id, h.* FROM Hability h
             JOIN Project_Habilities ph ON h.id = ph.hability_id
@@ -100,27 +91,28 @@ class ProjectRepository(BaseRepository):
             WHERE p.id IN ({placeholders})
         """
         self.cursor.execute(sql_habilities, project_ids)
-        for row in self.cursor.fetchall():
-            row: sqlite3.Row
-            row = dict(row)
-            project_id = row.pop('project_id')
-            projects_dict[project_id].habilities.append(self.hability_repo._map_row_to_model(row))
+        for db_row in self.cursor.fetchall():
+            row_dict = dict(db_row)
+            project_id = row_dict.pop('project_id')
+            hability = self.hability_repo._map_row_to_model(row_dict)
+            if project_id in projects_dict and hability:
+                projects_dict[project_id].habilities.append(hability)
 
-        return list(projects_dict.values())
+        return projects
 
     def get_by_id_with_habilities(self, project_id: int) -> Optional[Project]:
-        """Busca um projeto e já carrega suas habilidades necessárias."""
-        project = self.get_by_id(project_id)
-        if project:
-            project.habilities = self.get_habilities_for_project(project_id)
-        return project
+        """Busca um projeto e já carrega suas relações (habilidades e organização)."""
+        results = self.find_by_ids_with_all_relations([project_id])
+        return results[0] if results else None
 
     def find_all_with_habilities(self) -> list[Project]:
-        """Busca todos os projetos e suas habilidades."""
+        """Busca todos os projetos e suas relações (habilidades e organização)."""
         projects = self.find_all()
-        for project in projects:
-            project.habilities = self.get_habilities_for_project(project.id)
-        return projects
+        if not projects:
+            return []
+
+        project_ids = [p.id for p in projects]
+        return self.find_by_ids_with_all_relations(project_ids)
 
     def get_habilities_for_project(self, project_id: int) -> list[Hability]:
         """Busca todas as HABILIDADES de um projeto."""

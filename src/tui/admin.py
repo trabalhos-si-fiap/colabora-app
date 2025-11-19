@@ -4,11 +4,12 @@ from textual.containers import Container, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
-    Collapsible,
     Footer,
     Header,
     Input,
     Label,
+    RadioButton,
+    RadioSet,
     Select,
     SelectionList,
     Static,
@@ -23,6 +24,9 @@ from src.repositories import (
     ProjectRepository,
     UserRepository,
 )
+from src.use_cases import (
+    UpdateProjectUseCase,
+)
 
 
 class AdminScreen(Screen):
@@ -35,6 +39,7 @@ class AdminScreen(Screen):
         self._proj_repo = ProjectRepository()
         self._hab_repo = HabilityRepository()
         self._user_repo = UserRepository()
+        self._update_proj_uc = UpdateProjectUseCase.factory()
         super().__init__()
 
     def _get_org_options(self) -> list[tuple[str, int]]:
@@ -104,16 +109,19 @@ class AdminScreen(Screen):
                             )
                         # --- Listar/Editar Organização ---
                         with TabPane('Listar/Editar', id='org-edit-tab'):
-                            yield SelectionList[int](
-                                *self._get_org_options(),
-                                id='org-edit-list',
-                            )
+                            with RadioSet(id='org-edit-list'):
+                                for name, org_id in self._get_org_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = org_id
+                                    yield rb
+
                             with Container(
                                 id='org-edit-form', classes='hidden'
                             ):
                                 yield Static(
-                                    'Editando Organização:', classes='text'
+                                    'Editando Organização:', classes='text mb1'
                                 )
+                                yield Label('', id='org-edit-id-label', classes='text')
                                 yield Input(id='org-edit-name')
                                 yield Input(id='org-edit-description')
                                 yield Input(id='org-edit-email')
@@ -127,10 +135,12 @@ class AdminScreen(Screen):
 
                         # --- Deletar Organização ---
                         with TabPane('Deletar', id='org-delete-tab'):
-                            yield SelectionList[int](
-                                *self._get_org_options(),
-                                id='org-delete-list',
-                            )
+                            with RadioSet(id='org-delete-list'):
+                                for name, org_id in self._get_org_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = org_id
+                                    yield rb
+
                             yield Button(
                                 'Deletar Selecionada',
                                 variant='error',
@@ -172,16 +182,19 @@ class AdminScreen(Screen):
 
                         # --- Listar/Editar Projeto ---
                         with TabPane('Listar/Editar', id='proj-edit-tab'):
-                            yield SelectionList[int](
-                                *self._get_proj_options(),
-                                id='proj-edit-list',
-                            )
+                            with RadioSet(id='proj-edit-list'):
+                                for name, proj_id in self._get_proj_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = proj_id
+                                    yield rb
+
                             with Container(
                                 id='proj-edit-form', classes='hidden'
                             ):
                                 yield Static(
-                                    'Editando Projeto:', classes='text'
+                                    'Editando Projeto:', classes='text mb1'
                                 )
+                                yield Label('', id='proj-edit-id-label', classes='text')
                                 yield Input(id='proj-edit-name')
                                 yield Input(
                                     id='proj-edit-description', classes='mt1'
@@ -208,10 +221,12 @@ class AdminScreen(Screen):
 
                         # --- Deletar Projeto ---
                         with TabPane('Deletar', id='proj-delete-tab'):
-                            yield SelectionList[int](
-                                *self._get_proj_options(),
-                                id='proj-delete-list',
-                            )
+                            with RadioSet(id='proj-delete-list'):
+                                for name, proj_id in self._get_proj_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = proj_id
+                                    yield rb
+
                             yield Button(
                                 'Deletar Selecionado',
                                 variant='error',
@@ -248,16 +263,19 @@ class AdminScreen(Screen):
 
                         # --- Listar/Editar Usuário ---
                         with TabPane('Listar/Editar', id='user-edit-tab'):
-                            yield SelectionList[int](
-                                *self._get_user_options(),
-                                id='user-edit-list',
-                            )
+                            with RadioSet(id='user-edit-list'):
+                                for name, user_id in self._get_user_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = user_id
+                                    yield rb
+
                             with Container(
                                 id='user-edit-form', classes='hidden'
                             ):
                                 yield Static(
-                                    'Editando Usuário:', classes='text'
+                                    'Editando Usuário:', classes='text mb1'
                                 )
+                                yield Label('', id='user-edit-id-label', classes='text')
                                 yield Input(
                                     id='user-edit-firstname',
                                     placeholder='Primeiro Nome',
@@ -289,10 +307,12 @@ class AdminScreen(Screen):
 
                         # --- Deletar Usuário ---
                         with TabPane('Deletar', id='user-delete-tab'):
-                            yield SelectionList[int](
-                                *self._get_user_options(),
-                                id='user-delete-list',
-                            )
+                            with RadioSet(id='user-delete-list'):
+                                for name, user_id in self._get_user_options():
+                                    rb = RadioButton(name)
+                                    rb.db_id = user_id
+                                    yield rb
+
                             yield Button(
                                 'Deletar Selecionado',
                                 variant='error',
@@ -302,127 +322,163 @@ class AdminScreen(Screen):
 
         yield Footer()
 
-    def _clear_and_repopulate_org_lists(self):
-        """Atualiza todas as listas de organizações na tela."""
+    def _repopulate_org_radio_sets(self, clear_selection: bool = True):
+        """Atualiza os RadioSets de organização."""
         new_options = self._get_org_options()
+        for list_id in ['#org-edit-list', '#org-delete-list']:
+            radio_set = self.query_one(list_id, RadioSet)
+            radio_set.blur()  # Remove o foco para evitar problemas de estado
+            if clear_selection:
+                radio_set.pressed_index = -1
+            radio_set.remove_children()
+            for name, org_id in new_options:
+                rb = RadioButton(name)
+                rb.db_id = org_id
+                radio_set.mount(rb)
 
-        # Atualiza lista de edição
-        edit_list = self.query_one('#org-edit-list', SelectionList)
-        edit_list.clear_options()
-        edit_list.add_options(new_options)
-
-        # Atualiza lista de deleção
-        delete_list = self.query_one('#org-delete-list', SelectionList)
-        delete_list.clear_options()
-        delete_list.add_options(new_options)
-
-        # Atualiza select no formulário de projetos
+    def _repopulate_org_selects(self):
+        """Atualiza os Selects de organização nos formulários de projeto."""
+        new_options = self._get_org_options()
         proj_org_select = self.query_one('#proj-org-select', Select)
         proj_org_select.set_options(new_options)
+        proj_edit_org_select = self.query_one('#proj-edit-org-select', Select)
+        proj_edit_org_select.set_options(new_options)
+
+    def _clear_and_repopulate_org_lists(self, clear_selection: bool = True):
+        """Atualiza todas as listas de organizações na tela."""
+        self._repopulate_org_radio_sets(clear_selection)
+        self._repopulate_org_selects()
 
     def _clear_and_repopulate_proj_lists(self):
         """Atualiza todas as listas de projetos na tela."""
         new_options = self._get_proj_options()
 
         # Atualiza lista de edição
-        edit_list = self.query_one('#proj-edit-list', SelectionList)
-        edit_list.clear_options()
-        edit_list.add_options(new_options)
+        edit_list = self.query_one('#proj-edit-list', RadioSet)
+        edit_list.remove_children()
+        for name, proj_id in new_options:
+            rb = RadioButton(name)
+            rb.db_id = proj_id
+            edit_list.mount(rb)
 
         # Atualiza lista de deleção
-        delete_list = self.query_one('#proj-delete-list', SelectionList)
-        delete_list.clear_options()
-        delete_list.add_options(new_options)
+        delete_list = self.query_one('#proj-delete-list', RadioSet)
+        delete_list.remove_children()
+        for name, proj_id in new_options:
+            rb = RadioButton(name)
+            rb.db_id = proj_id
+            delete_list.mount(rb)
 
     def _clear_and_repopulate_user_lists(self):
         """Atualiza todas as listas de usuários na tela."""
         new_options = self._get_user_options()
 
         # Atualiza lista de edição
-        edit_list = self.query_one('#user-edit-list', SelectionList)
-        edit_list.clear_options()
-        edit_list.add_options(new_options)
+        edit_list = self.query_one('#user-edit-list', RadioSet)
+        edit_list.remove_children()
+        for name, user_id in new_options:
+            rb = RadioButton(name)
+            rb.db_id = user_id
+            edit_list.mount(rb)
 
         # Atualiza lista de deleção
-        delete_list = self.query_one('#user-delete-list', SelectionList)
-        delete_list.clear_options()
-        delete_list.add_options(new_options)
+        delete_list = self.query_one('#user-delete-list', RadioSet)
+        delete_list.remove_children()
+        for name, user_id in new_options:
+            rb = RadioButton(name)
+            rb.db_id = user_id
+            delete_list.mount(rb)
 
-    @on(SelectionList.SelectedChanged, '#org-edit-list')
-    def on_org_selection_changed(self, event: SelectionList.SelectedChanged):
+    @on(RadioSet.Changed, '#org-edit-list')
+    def on_org_selection_changed(self, event: RadioSet.Changed):
         """Preenche o formulário de edição quando uma organização é selecionada."""
         edit_form = self.query_one('#org-edit-form')
-        # Acessa a lista de seleção a partir do evento
-        if event.selection_list.selected:
-            # Como é seleção única, pegamos o primeiro item da lista
-            org_id = event.selection_list.selected[0]
-            org = self._org_repo.get_by_id(org_id)
+        # O evento Changed é emitido duas vezes: ao desmarcar o antigo e marcar o novo.
+        # Ignoramos o evento de "desmarcar" onde `event.pressed` é None.
+        if event.pressed:
+            org_id = getattr(event.pressed, 'db_id', None)
+            if org_id is not None:
+                org = self._org_repo.get_by_id(org_id)
 
-            if org:
-                self.query_one('#org-edit-name', Input).value = org.name
-                self.query_one(
-                    '#org-edit-description', Input
-                ).value = org.description
-                self.query_one(
-                    '#org-edit-email', Input
-                ).value = org.contact_email
-                self.query_one(
-                    '#org-edit-phone', Input
-                ).value = org.contact_phone
-                self.query_one('#org-edit-website', Input).value = org.website
-                edit_form.remove_class('hidden')
-        else:
-            edit_form.add_class('hidden')
+                if org:
+                    self.query_one('#org-edit-id-label', Label).update(
+                        f'[b]ID:[/b] {org.id}'
+                    )
+                    self.query_one('#org-edit-name', Input).value = org.name
+                    self.query_one(
+                        '#org-edit-description', Input
+                    ).value = org.description
+                    self.query_one(
+                        '#org-edit-email', Input
+                    ).value = org.contact_email
+                    self.query_one(
+                        '#org-edit-phone', Input
+                    ).value = org.contact_phone
+                    self.query_one('#org-edit-website', Input).value = org.website
+                    edit_form.remove_class('hidden')
 
-    @on(SelectionList.SelectedChanged, '#proj-edit-list')
-    def on_proj_selection_changed(self, event: SelectionList.SelectedChanged):
+    @on(RadioSet.Changed, '#proj-edit-list')
+    def on_proj_selection_changed(self, event: RadioSet.Changed):
         """Preenche o formulário de edição quando um projeto é selecionado."""
         edit_form = self.query_one('#proj-edit-form')
-        if event.selection_list.selected:
-            proj_id = event.selection_list.selected[0]
-            # Usamos find_all_with_habilities para garantir que as habilidades venham juntas
-            all_projects = self._proj_repo.find_all_with_habilities()
-            proj = next((p for p in all_projects if p.id == proj_id), None)
 
-            if proj:
-                self.query_one('#proj-edit-name', Input).value = proj.name
-                self.query_one(
-                    '#proj-edit-description', Input
-                ).value = proj.description
-                self.query_one(
-                    '#proj-edit-org-select', Select
-                ).value = proj.organization_id
+        # Ignoramos o evento de "desmarcar" onde `event.pressed` é None.
+        if event.pressed:
+            # Limpa a seleção de habilidades anterior antes de preencher
+            self.query_one('#proj-edit-hab-list', SelectionList).deselect_all()
+            proj_id = getattr(event.pressed, 'db_id', None)
+            if proj_id is not None:
+                # Usamos find_all_with_habilities para garantir que as habilidades venham juntas
+                all_projects = self._proj_repo.find_all_with_habilities()
+                proj = next((p for p in all_projects if p.id == proj_id), None)
+            if proj_id is not None:                
+                # Busca o projeto com suas habilidades associadas
+                proj = self._proj_repo.get_by_id_with_habilities(proj_id)
 
-                hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
-                hab_list.deselect_all()
-                for hability in proj.habilities:
-                    hab_list.select(hability.id)
-                edit_form.remove_class('hidden')
-        else:
-            edit_form.add_class('hidden')
+                if proj:
+                    self.query_one('#proj-edit-id-label', Label).update(
+                        f'[b]ID:[/b] {proj.id}'
+                    )
+                    self.query_one('#proj-edit-name', Input).value = proj.name
+                    self.query_one(
+                        '#proj-edit-description', Input
+                    ).value = proj.description
+                    self.query_one(
+                        '#proj-edit-org-select', Select
+                    ).value = proj.organization_id
 
-    @on(SelectionList.SelectedChanged, '#user-edit-list')
-    def on_user_selection_changed(self, event: SelectionList.SelectedChanged):
+                    hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
+                    hab_list.deselect_all()
+                    for hability in proj.habilities:
+                        hab_list.select(hability.id)
+                    edit_form.remove_class('hidden')
+
+    @on(RadioSet.Changed, '#user-edit-list')
+    def on_user_selection_changed(self, event: RadioSet.Changed):
         """Preenche o formulário de edição quando um usuário é selecionado."""
         edit_form = self.query_one('#user-edit-form')
-        if event.selection_list.selected:
-            user_id = event.selection_list.selected[0]
-            user = self._user_repo.get_by_id(user_id)
 
-            if user:
-                self.query_one('#user-edit-firstname', Input).value = (
-                    user.first_name or ''
-                )
-                self.query_one('#user-edit-lastname', Input).value = (
-                    user.last_name or ''
-                )
-                self.query_one('#user-edit-email', Input).value = user.email
-                self.query_one(
-                    '#user-edit-role-select', Select
-                ).value = user.role.value
-                edit_form.remove_class('hidden')
-        else:
-            edit_form.add_class('hidden')
+        # Ignoramos o evento de "desmarcar" onde `event.pressed` é None.
+        if event.pressed:
+            user_id = getattr(event.pressed, 'db_id', None)
+            if user_id is not None:
+                user = self._user_repo.get_by_id(user_id)
+
+                if user:
+                    self.query_one('#user-edit-id-label', Label).update(
+                        f'[b]ID:[/b] {user.id}'
+                    )
+                    self.query_one('#user-edit-firstname', Input).value = (
+                        user.first_name or ''
+                    )
+                    self.query_one('#user-edit-lastname', Input).value = (
+                        user.last_name or ''
+                    )
+                    self.query_one('#user-edit-email', Input).value = user.email
+                    self.query_one(
+                        '#user-edit-role-select', Select
+                    ).value = user.role.value
+                    edit_form.remove_class('hidden')
 
     @on(Button.Pressed)
     def on_button_pressed(self, event: Button.Pressed):
@@ -440,7 +496,8 @@ class AdminScreen(Screen):
                 )
                 self._org_repo.save(org)
                 output_label.update('✅ Organização salva com sucesso!')
-                self._clear_and_repopulate_org_lists()
+                self._repopulate_org_radio_sets(clear_selection=True)
+                self._repopulate_org_selects()
                 for input_widget in self.query('Input'):
                     if input_widget.id.startswith('org-'):
                         input_widget.value = ''
@@ -449,11 +506,11 @@ class AdminScreen(Screen):
 
         elif event.button.id == 'update-org-button':
             try:
-                # Pega o primeiro (e único) ID da lista de seleção
-                org_id = self.query_one('#org-edit-list').selected[0]
-                if not org_id:
+                radio_set = self.query_one('#org-edit-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhuma organização selecionada.')
 
+                org_id = getattr(radio_set.pressed_button, 'db_id', None)
                 updated_org = Organization(
                     id=org_id,
                     name=self.query_one('#org-edit-name').value,
@@ -464,22 +521,24 @@ class AdminScreen(Screen):
                 )
                 self._org_repo.save(updated_org)
                 output_label.update('✅ Organização atualizada com sucesso!')
-                self._clear_and_repopulate_org_lists()
+                self._repopulate_org_radio_sets(clear_selection=False)
+                self._repopulate_org_selects()
                 self.query_one('#org-edit-form').add_class('hidden')
             except Exception as e:
                 output_label.update(f'❌ Erro ao atualizar organização: {e}')
 
         elif event.button.id == 'delete-org-button':
             try:
-                # Pega o primeiro (e único) ID da lista de seleção
-                org_id = self.query_one('#org-delete-list').selected[0]
-                if not org_id:
+                radio_set = self.query_one('#org-delete-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhuma organização selecionada.')
+                org_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 deleted = self._org_repo.delete(org_id)
                 if deleted:
                     output_label.update('✅ Organização deletada com sucesso!')
-                    self._clear_and_repopulate_org_lists()
+                    self._repopulate_org_radio_sets(clear_selection=True)
+                    self._repopulate_org_selects()
                 else:
                     output_label.update('⚠️ Organização não encontrada.')
             except Exception as e:
@@ -489,13 +548,16 @@ class AdminScreen(Screen):
         elif event.button.id == 'save-proj-button':
             try:
                 hab_list = self.query_one('#proj-hab-list', SelectionList)
+                selected_hability_ids = hab_list.selected
 
                 proj = Project(
                     name=self.query_one('#proj-name').value,
                     description=self.query_one('#proj-description').value,
                     organization_id=self.query_one('#proj-org-select').value,
-                    hability_ids=hab_list.selected,
                 )
+                # Busca os objetos Hability e os atribui ao projeto
+                proj.habilities = self._hab_repo.find_by_ids(selected_hability_ids)
+
                 self._proj_repo.save(proj)
                 output_label.update('✅ Projeto salvo com sucesso!')
                 self._clear_and_repopulate_proj_lists()
@@ -510,33 +572,41 @@ class AdminScreen(Screen):
 
         elif event.button.id == 'update-proj-button':
             try:
-                proj_id = self.query_one('#proj-edit-list').selected[0]
-                if not proj_id:
+                radio_set = self.query_one('#proj-edit-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhum projeto selecionado.')
+                proj_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
 
-                updated_proj = Project(
+                # Busca os objetos Hability a partir dos IDs selecionados
+                selected_habilities = self._hab_repo.find_by_ids(
+                    hab_list.selected
+                )
+
+                updated_proj = self._update_proj_uc.execute(
                     id=proj_id,
                     name=self.query_one('#proj-edit-name').value,
                     description=self.query_one('#proj-edit-description').value,
-                    organization_id=self.query_one(
-                        '#proj-edit-org-select'
-                    ).value,
-                    hability_ids=hab_list.selected,
+                    organization_id=self.query_one('#proj-edit-org-select').value,
+                    habilities=selected_habilities,
                 )
-                self._proj_repo.save(updated_proj)
-                output_label.update('✅ Projeto atualizado com sucesso!')
-                self._clear_and_repopulate_proj_lists()
-                self.query_one('#proj-edit-form').add_class('hidden')
+
+                if updated_proj:
+                    output_label.update('✅ Projeto atualizado com sucesso!')
+                    self._clear_and_repopulate_proj_lists()
+                    self.query_one('#proj-edit-form').add_class('hidden')
+                else:
+                    output_label.update('❌ Erro ao atualizar projeto.')
             except Exception as e:
                 output_label.update(f'❌ Erro ao atualizar projeto: {e}')
 
         elif event.button.id == 'delete-proj-button':
             try:
-                proj_id = self.query_one('#proj-delete-list').selected[0]
-                if not proj_id:
+                radio_set = self.query_one('#proj-delete-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhum projeto selecionado.')
+                proj_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 deleted = self._proj_repo.delete(proj_id)
                 if deleted:
@@ -565,9 +635,10 @@ class AdminScreen(Screen):
 
         elif event.button.id == 'update-user-button':
             try:
-                user_id = self.query_one('#user-edit-list').selected[0]
-                if not user_id:
+                radio_set = self.query_one('#user-edit-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhum usuário selecionado.')
+                user_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 # A senha não é atualizada aqui, apenas outros dados
                 user_to_update = self._user_repo.get_by_id(user_id)
@@ -593,9 +664,10 @@ class AdminScreen(Screen):
 
         elif event.button.id == 'delete-user-button':
             try:
-                user_id = self.query_one('#user-delete-list').selected[0]
-                if not user_id:
+                radio_set = self.query_one('#user-delete-list', RadioSet)
+                if radio_set.pressed_button is None:
                     raise ValueError('Nenhum usuário selecionado.')
+                user_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 # Adicionar verificação para não se auto-deletar
                 if self.app.user and self.app.user.id == user_id:

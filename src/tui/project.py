@@ -98,7 +98,7 @@ class ProjectScreen(Screen):
         if self.user:
             # Busca os projetos com as habilidades carregadas para evitar problemas
             project_ids = [p.id for p in self.user.projects]
-            user_projects = self._project_repo.find_by_ids_with_habilities(project_ids)
+            user_projects = self._project_repo.find_by_ids_with_all_relations(project_ids)
             for project in user_projects:
                 container.mount(self._create_project_widget(project, prefix='my'))
 
@@ -106,20 +106,23 @@ class ProjectScreen(Screen):
     def _filter_projects(self, event: Input.Changed) -> None:
         """Filtra a lista de projetos com base no texto de busca."""
         search_term = event.value.lower()
-        container = self.query_one('#project-list-container')
-        for collapsible in container.query(Collapsible).filter('[id^=all_project_]'):
-            # Find the corresponding project object for this widget
-            project_id = int(collapsible.id.split('_')[-1])
-            project = next(
-                (p for p in self.all_projects if p.id == project_id), None
-            )
-            if project:
-                # Show or hide the widget based on the filter
-                matches = (
-                    search_term in project.name.lower()
-                    or search_term in project.description.lower()
+        all_projects_container = self.query_one('#project-list-container')
+
+        # Filtra pela classe '.project-card' que é mais robusto
+        for collapsible in all_projects_container.query('.project-card'):
+            # Garante que estamos filtrando apenas os widgets da aba "Todos os Projetos"
+            if collapsible.id and collapsible.id.startswith('all_project_'):
+                project_id = int(collapsible.id.split('_')[-1])
+                project = next(
+                    (p for p in self.all_projects if p.id == project_id),
+                    None,
                 )
-                collapsible.display = matches
+                if project:
+                    matches = (
+                        search_term in project.name.lower()
+                        or search_term in project.description.lower()
+                    )
+                    collapsible.display = matches
 
     @on(Button.Pressed)
     def handle_subscription(self, event: Button.Pressed):
@@ -207,8 +210,7 @@ class ProjectScreen(Screen):
             *children, 
             title=project.name,
             id=f'{prefix}_project_{project.id}',
-            classes='input-margin-sm'
-            
+            classes='input-margin-sm project-card',
         )
         collapsible.border_subtitle = (
             f'{len(project.habilities)} habilidades necessárias'

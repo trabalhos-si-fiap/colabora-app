@@ -35,6 +35,13 @@ class Project:
             'hability_ids': self.hability_ids,
         }
 
+    def update(self, **kwargs) -> None:
+        """Atualiza os atributos do projeto a partir de um dicionário."""
+        for key, value in kwargs.items():
+            if hasattr(self, key) and value is not None:
+                # Permite atualizar a lista de habilidades diretamente
+                setattr(self, key, value)
+
     def has_hability(self, hability: Hability) -> bool:
         """Verifica se o projeto requer uma habilidade específica."""
         if hability is None or hability.id is None:

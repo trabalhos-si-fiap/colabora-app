@@ -5,7 +5,7 @@ import pytest
 
 from src.models.hability import Hability
 from src.repositories.hability import HabilityRepository
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.security.password import PasswordManager
 from src.use_cases.replace_password import ReplacePasswordUseCase
 from src.validators import password_validator

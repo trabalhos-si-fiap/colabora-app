@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from src.models.hability import Hability
 from src.repositories.hability import HabilityRepository
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.use_cases.update_user import UpdateUserUseCase
 
 

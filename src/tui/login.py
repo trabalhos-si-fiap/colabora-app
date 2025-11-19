@@ -13,6 +13,7 @@ from textual.widgets import (
     Static,
 )
 
+from src.populate_db.users import PopulateRawDB
 from src.repositories import (
     HabilityRepository,
     ProjectRepository,
@@ -28,7 +29,6 @@ from src.use_cases import (
 )
 
 css_path = Path(__file__).parent / 'css' / 'styles.css'
-
 
 class ColaboraApp(App):
     """Um aplicativo TUI para o Colabora."""
@@ -73,13 +73,13 @@ class ColaboraApp(App):
 
             yield Input(
                 placeholder='Digite o seu e-mail',
-                value='elias@gmail.com',
+                value='admin@admin.com',
                 id='email-input',
                 classes='input-margin',
             )
             yield Input(
                 placeholder='Digite a sua senha',
-                value='1234567A*',
+                value='SenhaForte123*',
                 password=True,
                 id='password-input',
                 classes='input-margin',

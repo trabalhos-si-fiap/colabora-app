@@ -13,10 +13,6 @@ class HabilityRepository(BaseRepository):
     def __init__(self, db_connection: Optional[sqlite3.Connection] = None):
         super().__init__('Hability', Hability, db_connection)
 
-        # Popula o banco de dados apenas se a conexão não for externa (evita popular em testes)
-        if db_connection is None and self.count() == 0:
-            self._populate()
-
     def get_dict_by_domain(self) -> dict:
         habilities = self.find_all()
 
@@ -27,6 +23,16 @@ class HabilityRepository(BaseRepository):
                 result[hability.domain] = []
             result[hability.domain].append(hability)
         return result
+    
+    def find_by_ids(self, hability_ids: list[int]) -> list[Hability]:
+        """Busca uma lista de habilidades por seus IDs."""
+        if not hability_ids:
+            return []
+        placeholders = ','.join('?' for _ in hability_ids)
+        sql = f'SELECT * FROM {self.table_name} WHERE id IN ({placeholders})'
+        self.cursor.execute(sql, hability_ids)
+        rows = self.cursor.fetchall()
+        return [self._map_row_to_model(row) for row in rows]
 
     def find_by_names(self, names: list[str]) -> list[Hability]:
         """Busca uma lista de habilidades por seus nomes."""
@@ -38,27 +44,4 @@ class HabilityRepository(BaseRepository):
         rows = self.cursor.fetchall()
         return [self._map_row_to_model(row) for row in rows]
 
-    def _populate(self) -> dict:
-        populated_data = {}
 
-        file = SEEDS_PATH / 'habilities.json'
-
-        empty_db = self.count() == 0
-        with open(file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-
-            for domain, habilities_list in data.items():
-                populated_data[domain] = []
-                for hability_dict in habilities_list:
-                    hability_obj = Hability(
-                        name=hability_dict['name'],
-                        description=hability_dict['description'],
-                        domain=domain,
-                    )
-
-                    if empty_db:
-                        hability_obj = self.save(hability_obj)
-
-                    populated_data[domain].append(hability_obj)
-        logger.info(f'Banco de dados populado com {self.count()} habilidades.')
-        return populated_data

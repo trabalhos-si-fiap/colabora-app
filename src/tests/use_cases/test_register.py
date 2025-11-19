@@ -3,7 +3,7 @@ import sqlite3
 
 import pytest
 
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.security.password import PasswordManager
 from src.use_cases.register import RegisterUserUseCase
 from src.validators import email_validator, password_validator

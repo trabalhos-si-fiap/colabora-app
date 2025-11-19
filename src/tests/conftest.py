@@ -8,7 +8,7 @@ import pytest
 from src.models.users import User
 from src.repositories.database import Database
 from src.repositories.hability import HabilityRepository
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.security.password import PasswordManager
 from src.use_cases.register import RegisterUserUseCase
 from src.validators import email_validator, password_validator

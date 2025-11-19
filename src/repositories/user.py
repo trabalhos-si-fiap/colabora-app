@@ -1,8 +1,10 @@
+import json
 import sqlite3
 from typing import Optional, overload
 
 from loguru import logger
 
+from src import SEEDS_PATH
 from src.models import Project
 from src.models.hability import Hability
 from src.models.users import User
@@ -11,11 +13,13 @@ from src.repositories.hability import HabilityRepository
 from src.repositories.project import ProjectRepository
 
 
+
 class UserRepository(BaseRepository):
     def __init__(self, db_connection: Optional[sqlite3.Connection] = None):
         super().__init__('User', User, db_connection)
         self.hability_repo = HabilityRepository(db_connection)
         self.project_repo = ProjectRepository(db_connection)
+
 
     def save(self, user: User) -> User:
         """

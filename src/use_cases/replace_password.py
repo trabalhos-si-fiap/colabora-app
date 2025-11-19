@@ -1,6 +1,6 @@
 from typing import Callable
 
-from src.repositories.users import UserRepository
+from src.repositories.user import UserRepository
 from src.security.password import PasswordManager
 from src.validators import password_validator
 

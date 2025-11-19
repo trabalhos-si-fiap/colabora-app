@@ -1,4 +1,3 @@
-import os
 import sqlite3
 from typing import Optional
 
@@ -124,24 +123,24 @@ class Database:
             user_id INTEGER,
             hability_id INTEGER,
             PRIMARY KEY (user_id, hability_id),
-            FOREIGN KEY (user_id) REFERENCES User(id),
-            FOREIGN KEY (hability_id) REFERENCES Hability(id)
+            FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+            FOREIGN KEY (hability_id) REFERENCES Hability(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS User_Projects (
             user_id INTEGER,
             project_id INTEGER,
             PRIMARY KEY (user_id, project_id),
-            FOREIGN KEY (user_id) REFERENCES User(id),
-            FOREIGN KEY (project_id) REFERENCES Project(id)
+            FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+            FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS Project_Habilities (
             project_id INTEGER,
             hability_id INTEGER,
             PRIMARY KEY (project_id, hability_id),
-            FOREIGN KEY (project_id) REFERENCES Project(id),
-            FOREIGN KEY (hability_id) REFERENCES Hability(id)
+            FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE,
+            FOREIGN KEY (hability_id) REFERENCES Hability(id) ON DELETE CASCADE
         );
         """
         logger.debug('Criando esquema do banco de dados...')
