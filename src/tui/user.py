@@ -6,13 +6,13 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     Collapsible,
+    Digits,
     Footer,
     Header,
     Input,
     Label,
     Static,
     Switch,
-    Digits
 )
 
 from src.models import Role, User
@@ -42,13 +42,13 @@ class UserScreen(Screen):
         replace_password_use_case: ReplacePasswordUseCase,
     ) -> None:
         found_user = user_repository.get_by_id_with_all_relations(user.id)
-        
+
         if found_user is None:
             self.app.pop_screen()
             return
-        
+
         self.user: User = found_user
-        
+
         self.habilities_data = hability_repository.get_dict_by_domain()
         # Cria um mapa de nome da habilidade para o objeto Hability para fácil acesso
         self.hability_map = {
@@ -60,7 +60,7 @@ class UserScreen(Screen):
         self._replace_password_uc = replace_password_use_case
         super().__init__()
 
-    def compose(self) -> ComposeResult:        
+    def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with VerticalScroll(classes='bg with-border'):
             yield Label(
@@ -71,7 +71,9 @@ class UserScreen(Screen):
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Label('[b] Nome [/]', classes='small-input text-center')
-                yield Label('[b] Sobrenome [/]', classes='small-input text-center')
+                yield Label(
+                    '[b] Sobrenome [/]', classes='small-input text-center'
+                )
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Input(
@@ -89,9 +91,12 @@ class UserScreen(Screen):
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Label(
-                    '[b] Data de Nascimento [/]', classes='small-input text-center'
+                    '[b] Data de Nascimento [/]',
+                    classes='small-input text-center',
                 )
-                yield Label('[b] E-mail [/]', classes='small-input text-center')
+                yield Label(
+                    '[b] E-mail [/]', classes='small-input text-center'
+                )
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Input(
@@ -108,7 +113,10 @@ class UserScreen(Screen):
 
             with Horizontal(classes='center full-width container my'):
                 with Container(classes='with-border projects-habilities'):
-                    yield Label('[b] Projetos [/]', classes='small-input text-center mb1')
+                    yield Label(
+                        '[b] Projetos [/]',
+                        classes='small-input text-center mb1',
+                    )
                     yield Digits(
                         f'{len(self.user.projects)}',
                         id='projects-count',
@@ -116,7 +124,10 @@ class UserScreen(Screen):
                     )
 
                 with Container(classes='with-border projects-habilities'):
-                    yield Label('[b] Habilidades [/]', classes='small-input text-center mb1')
+                    yield Label(
+                        '[b] Habilidades [/]',
+                        classes='small-input text-center mb1',
+                    )
                     yield Digits(
                         f'{len(self.user.habilities)}',
                         id='habilities-count',
@@ -143,7 +154,9 @@ class UserScreen(Screen):
                     )
 
             with Container(classes='full-width h-auto'):
-                yield Label('[b]Selecione suas habilidades: [/]', classes='text')
+                yield Label(
+                    '[b]Selecione suas habilidades: [/]', classes='text'
+                )
                 with VerticalScroll(classes='center h-auto input-margin'):
                     for domain in self.habilities_data.keys():
                         with Collapsible(title=domain):
@@ -153,7 +166,9 @@ class UserScreen(Screen):
                                         value=self.user.has_hability(hability),
                                         name=hability.name,
                                     ),
-                                    Static(hability.name, classes='label-switch'),
+                                    Static(
+                                        hability.name, classes='label-switch'
+                                    ),
                                     classes='container',
                                 )
 
@@ -228,7 +243,7 @@ class UserScreen(Screen):
             )
 
         elif event.button.id == 'admin-button':
-            self.app.push_screen(AdminScreen())
+            self.app.push_screen(AdminScreen(user_logged=self.user))
 
     @on(Button.Pressed, '#logout-button')
     def action_logout(self) -> None:

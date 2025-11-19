@@ -30,6 +30,7 @@ from src.use_cases import (
 
 css_path = Path(__file__).parent / 'css' / 'styles.css'
 
+
 class ColaboraApp(App):
     """Um aplicativo TUI para o Colabora."""
 
@@ -115,7 +116,11 @@ class ColaboraApp(App):
                     )
                 )
             else:
-                self.notify('⚠️  ' + err_msg, title='Erro ao fazer login', severity='error')
+                self.notify(
+                    '⚠️  ' + err_msg,
+                    title='Erro ao fazer login',
+                    severity='error',
+                )
 
         elif event.button.id == 'register-button':
             self.push_screen('register')

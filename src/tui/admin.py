@@ -36,22 +36,41 @@ class AdminScreen(Screen):
 
     BINDINGS = [('escape', 'app.pop_screen', 'Voltar')]
 
-    def __init__(self,
-           organization_repo: OrganizationRepository=None,
-           project_repo: ProjectRepository=None,
-           hability_repo: HabilityRepository=None,
-           user_repo: UserRepository=None,
-           update_project_use_case: UpdateProjectUseCase=None, 
-           register_user_use_case: RegisterUserUseCase=None,   
-           update_user_uc: UpdateUserUseCase=None,
-        ):
-        self._org_repo = organization_repo if organization_repo else OrganizationRepository()
+    def __init__(
+        self,
+        user_logged: User,
+        organization_repo: OrganizationRepository = None,
+        project_repo: ProjectRepository = None,
+        hability_repo: HabilityRepository = None,
+        user_repo: UserRepository = None,
+        update_project_use_case: UpdateProjectUseCase = None,
+        register_user_use_case: RegisterUserUseCase = None,
+        update_user_uc: UpdateUserUseCase = None,
+    ):
+        self._user_logged = user_logged
+        self._org_repo = (
+            organization_repo
+            if organization_repo
+            else OrganizationRepository()
+        )
         self._proj_repo = project_repo if project_repo else ProjectRepository()
-        self._hab_repo = hability_repo if hability_repo else HabilityRepository()
+        self._hab_repo = (
+            hability_repo if hability_repo else HabilityRepository()
+        )
         self._user_repo = user_repo if user_repo else UserRepository()
-        self._update_proj_uc = update_project_use_case if update_project_use_case else UpdateProjectUseCase.factory()
-        self._register_user_uc = register_user_use_case if register_user_use_case else RegisterUserUseCase.factory()
-        self._update_user_uc = update_user_uc if update_user_uc else UpdateUserUseCase.factory()
+        self._update_proj_uc = (
+            update_project_use_case
+            if update_project_use_case
+            else UpdateProjectUseCase.factory()
+        )
+        self._register_user_uc = (
+            register_user_use_case
+            if register_user_use_case
+            else RegisterUserUseCase.factory()
+        )
+        self._update_user_uc = (
+            update_user_uc if update_user_uc else UpdateUserUseCase.factory()
+        )
         super().__init__()
 
     def _get_org_options(self) -> list[tuple[str, int]]:
@@ -133,7 +152,9 @@ class AdminScreen(Screen):
                                 yield Static(
                                     'Editando Organização:', classes='text mb1'
                                 )
-                                yield Label('', id='org-edit-id-label', classes='text')
+                                yield Label(
+                                    '', id='org-edit-id-label', classes='text'
+                                )
                                 yield Input(id='org-edit-name')
                                 yield Input(id='org-edit-description')
                                 yield Input(id='org-edit-email')
@@ -206,7 +227,9 @@ class AdminScreen(Screen):
                                 yield Static(
                                     'Editando Projeto:', classes='text mb1'
                                 )
-                                yield Label('', id='proj-edit-id-label', classes='text')
+                                yield Label(
+                                    '', id='proj-edit-id-label', classes='text'
+                                )
                                 yield Input(id='proj-edit-name')
                                 yield Input(
                                     id='proj-edit-description', classes='mt1'
@@ -287,7 +310,9 @@ class AdminScreen(Screen):
                                 yield Static(
                                     'Editando Usuário:', classes='text mb1'
                                 )
-                                yield Label('', id='user-edit-id-label', classes='text')
+                                yield Label(
+                                    '', id='user-edit-id-label', classes='text'
+                                )
                                 yield Input(
                                     id='user-edit-firstname',
                                     placeholder='Primeiro Nome',
@@ -342,7 +367,7 @@ class AdminScreen(Screen):
             radio_set.blur()  # Remove o foco para evitar problemas de estado
             if clear_selection:
                 ...
-                #radio_set.pressed_button = None
+                # radio_set.pressed_button = None
             radio_set.remove_children()
             for name, org_id in new_options:
                 rb = RadioButton(name)
@@ -427,7 +452,9 @@ class AdminScreen(Screen):
                     self.query_one(
                         '#org-edit-phone', Input
                     ).value = org.contact_phone
-                    self.query_one('#org-edit-website', Input).value = org.website
+                    self.query_one(
+                        '#org-edit-website', Input
+                    ).value = org.website
                     edit_form.remove_class('hidden')
 
     @on(RadioSet.Changed, '#proj-edit-list')
@@ -444,7 +471,7 @@ class AdminScreen(Screen):
                 # Usamos find_all_with_habilities para garantir que as habilidades venham juntas
                 all_projects = self._proj_repo.find_all_with_habilities()
                 proj = next((p for p in all_projects if p.id == proj_id), None)
-            if proj_id is not None:                
+            if proj_id is not None:
                 # Busca o projeto com suas habilidades associadas
                 proj = self._proj_repo.get_by_id_with_habilities(proj_id)
 
@@ -460,7 +487,9 @@ class AdminScreen(Screen):
                         '#proj-edit-org-select', Select
                     ).value = proj.organization_id
 
-                    hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
+                    hab_list = self.query_one(
+                        '#proj-edit-hab-list', SelectionList
+                    )
                     hab_list.deselect_all()
                     for hability in proj.habilities:
                         hab_list.select(hability.id)
@@ -487,7 +516,9 @@ class AdminScreen(Screen):
                     self.query_one('#user-edit-lastname', Input).value = (
                         user.last_name or ''
                     )
-                    self.query_one('#user-edit-email', Input).value = user.email
+                    self.query_one(
+                        '#user-edit-email', Input
+                    ).value = user.email
                     self.query_one(
                         '#user-edit-role-select', Select
                     ).value = user.role
@@ -569,7 +600,9 @@ class AdminScreen(Screen):
                     organization_id=self.query_one('#proj-org-select').value,
                 )
                 # Busca os objetos Hability e os atribui ao projeto
-                proj.habilities = self._hab_repo.find_by_ids(selected_hability_ids)
+                proj.habilities = self._hab_repo.find_by_ids(
+                    selected_hability_ids
+                )
 
                 self._proj_repo.save(proj)
                 output_label.update('✅ Projeto salvo com sucesso!')
@@ -601,7 +634,9 @@ class AdminScreen(Screen):
                     id=proj_id,
                     name=self.query_one('#proj-edit-name').value,
                     description=self.query_one('#proj-edit-description').value,
-                    organization_id=self.query_one('#proj-edit-org-select').value,
+                    organization_id=self.query_one(
+                        '#proj-edit-org-select'
+                    ).value,
                     habilities=selected_habilities,
                 )
 
@@ -669,7 +704,7 @@ class AdminScreen(Screen):
                 output_label.update('✅ Usuário atualizado com sucesso!')
                 self._clear_and_repopulate_user_lists()
                 self.query_one('#user-edit-form').add_class('hidden')
-                    
+
             except Exception as e:
                 output_label.update(f'❌ Erro ao atualizar usuário: {e}')
 
@@ -681,7 +716,7 @@ class AdminScreen(Screen):
                 user_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 # Adicionar verificação para não se auto-deletar
-                if self.app.user and self.app.user.id == user_id:
+                if self._user_logged and self._user_logged.id == user_id:
                     output_label.update('❌ Você não pode deletar a si mesmo.')
                     return
 

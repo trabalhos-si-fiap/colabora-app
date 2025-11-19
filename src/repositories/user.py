@@ -13,13 +13,11 @@ from src.repositories.hability import HabilityRepository
 from src.repositories.project import ProjectRepository
 
 
-
 class UserRepository(BaseRepository):
     def __init__(self, db_connection: Optional[sqlite3.Connection] = None):
         super().__init__('User', User, db_connection)
         self.hability_repo = HabilityRepository(db_connection)
         self.project_repo = ProjectRepository(db_connection)
-
 
     def save(self, user: User) -> User:
         """

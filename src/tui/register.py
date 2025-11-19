@@ -48,13 +48,19 @@ class RegisterScreen(Screen):
         ).value
 
         if password != confirm_password:
-            self.notify('⚠️  As senhas não coincidem.', title='Falha ao cadastrar', severity='error')
+            self.notify(
+                '⚠️  As senhas não coincidem.',
+                title='Falha ao cadastrar',
+                severity='error',
+            )
             return
 
         user, err = RegisterUserUseCase.factory().execute(email, password)
 
         if err:
-            self.notify('⚠️  ' + str(err), title='Falha ao cadastrar', severity='error')
+            self.notify(
+                '⚠️  ' + str(err), title='Falha ao cadastrar', severity='error'
+            )
         else:
             self.notify(
                 f'Você foi registrado! Agora, faça login.',

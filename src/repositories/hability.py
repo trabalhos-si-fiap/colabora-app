@@ -23,7 +23,7 @@ class HabilityRepository(BaseRepository):
                 result[hability.domain] = []
             result[hability.domain].append(hability)
         return result
-    
+
     def find_by_ids(self, hability_ids: list[int]) -> list[Hability]:
         """Busca uma lista de habilidades por seus IDs."""
         if not hability_ids:
@@ -43,5 +43,3 @@ class HabilityRepository(BaseRepository):
         self.cursor.execute(sql, names)
         rows = self.cursor.fetchall()
         return [self._map_row_to_model(row) for row in rows]
-
-
