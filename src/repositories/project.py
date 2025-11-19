@@ -1,10 +1,9 @@
-import json
 import sqlite3
+from math import ceil
 from typing import Optional
 
 from loguru import logger
 
-from src import SEEDS_PATH
 from src.models import Hability, Project
 from src.repositories import (
     BaseRepository,
@@ -15,11 +14,10 @@ from src.repositories import (
 
 class ProjectRepository(BaseRepository):
     def __init__(self, db_connection: Optional[sqlite3.Connection] = None):
-        super().__init__('Project', Project, db_connection)
+        super().__init__("Project", Project, db_connection)
         # Garante que as dependências sejam inicializadas (e populadas) primeiro
         self.hability_repo = HabilityRepository(db_connection)
         self.org_repo = OrganizationRepository(db_connection)
-
 
     def save(self, project: Project) -> Project:
         """
@@ -37,27 +35,22 @@ class ProjectRepository(BaseRepository):
     def _sync_habilities(self, project_id: int, habilities: list[Hability]):
         """Sincroniza a tabela Project_Habilities."""
         try:
-            sql_delete = 'DELETE FROM Project_Habilities WHERE project_id = ?'
+            sql_delete = "DELETE FROM Project_Habilities WHERE project_id = ?"
             self.cursor.execute(sql_delete, (project_id,))
 
-            habilities_with_ids = [
-                h.id for h in habilities if h.id is not None
-            ]
+            habilities_with_ids = [h.id for h in habilities if h.id is not None]
             if habilities_with_ids:
-                sql_insert = 'INSERT INTO Project_Habilities (project_id, hability_id) VALUES (?, ?)'
-                data_to_insert = [
-                    (project_id, h_id) for h_id in habilities_with_ids
-                ]
+                sql_insert = "INSERT INTO Project_Habilities (project_id, hability_id) VALUES (?, ?)"
+                data_to_insert = [(project_id, h_id) for h_id in habilities_with_ids]
                 self.cursor.executemany(sql_insert, data_to_insert)
 
             self.conn.commit()
         except sqlite3.Error as e:
             logger.error(
-                f'Erro ao sincronizar habilidades para project_id {project_id}: {e}'
+                f"Erro ao sincronizar habilidades para project_id {project_id}: {e}"
             )
             self.conn.rollback()
             raise
-
 
     def find_by_ids_with_all_relations(self, project_ids: list[int]) -> list[Project]:
         """
@@ -68,8 +61,8 @@ class ProjectRepository(BaseRepository):
             return []
 
         # 1. Busca todos os projetos de uma vez
-        placeholders = ','.join('?' for _ in project_ids)
-        sql_projects = f'SELECT * FROM {self.table_name} WHERE id IN ({placeholders}) ORDER BY name'
+        placeholders = ",".join("?" for _ in project_ids)
+        sql_projects = f"SELECT * FROM {self.table_name} WHERE id IN ({placeholders}) ORDER BY name"
         self.cursor.execute(sql_projects, project_ids)
         projects = [self._map_row_to_model(r) for r in self.cursor.fetchall()]
         projects_dict = {p.id: p for p in projects}
@@ -93,7 +86,7 @@ class ProjectRepository(BaseRepository):
         self.cursor.execute(sql_habilities, project_ids)
         for db_row in self.cursor.fetchall():
             row_dict = dict(db_row)
-            project_id = row_dict.pop('project_id')
+            project_id = row_dict.pop("project_id")
             hability = self.hability_repo._map_row_to_model(row_dict)
             if project_id in projects_dict and hability:
                 projects_dict[project_id].habilities.append(hability)
@@ -113,6 +106,69 @@ class ProjectRepository(BaseRepository):
 
         project_ids = [p.id for p in projects]
         return self.find_by_ids_with_all_relations(project_ids)
+
+    def find_all_with_habilities_paginated(
+        self,
+        page: int = 1,
+        per_page: int = 2,
+    ):
+        """
+        Busca projetos com habilidades e organização, de forma paginada.
+        Retorna dict com dados + informações de paginação.
+        """
+        if page < 1:
+            raise ValueError("page must be >= 1")
+
+        # total de projetos
+        total = self.count()
+        total_pages = max(ceil(total / per_page), 1)
+
+        # se não houver projetos, retorna vazio
+        if total == 0:
+            return {
+                "data": [],
+                "page": 1,
+                "per_page": per_page,
+                "total": 0,
+                "total_pages": 1,
+            }
+
+        # evita pedir uma página maior que o total
+        if page > total_pages:
+            page = total_pages
+
+        offset = (page - 1) * per_page
+
+        # Busca só os projetos da página atual
+        sql = f"""
+            SELECT * FROM {self.table_name}
+            ORDER BY name
+            LIMIT ? OFFSET ?
+        """
+        self.cursor.execute(sql, (per_page, offset))
+        project_rows = self.cursor.fetchall()
+        projects = [self._map_row_to_model(r) for r in project_rows]
+
+        if not projects:
+            return {
+                "data": [],
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "total_pages": total_pages,
+            }
+
+        # Carrega as relações (habilidades + organização) só para esses projetos
+        project_ids = [p.id for p in projects]
+        projects_with_relations = self.find_by_ids_with_all_relations(project_ids)
+
+        return {
+            "data": projects_with_relations,
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+        }
 
     def get_habilities_for_project(self, project_id: int) -> list[Hability]:
         """Busca todas as HABILIDADES de um projeto."""
