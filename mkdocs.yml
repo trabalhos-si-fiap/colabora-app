@@ -10,7 +10,7 @@ theme:
   #favicon: assets/favicon.png
 
 markdown_extensions:
-  - attrs_list
+  - attr_list
   
 extra_css:
   - stylesheets/extra.css
