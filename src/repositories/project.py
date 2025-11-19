@@ -76,6 +76,38 @@ class ProjectRepository(BaseRepository):
             f'Tabela de Projetos populada com {self.count()} projetos.'
         )
 
+    def find_by_ids_with_habilities(self, project_ids: list[int]) -> list[Project]:
+        """
+        Busca uma lista de projetos por seus IDs e carrega suas habilidades
+        de forma otimizada (evitando N+1 queries).
+        """
+        if not project_ids:
+            return []
+
+        # 1. Busca todos os projetos de uma vez
+        placeholders = ','.join('?' for _ in project_ids)
+        sql_projects = f'SELECT * FROM {self.table_name} WHERE id IN ({placeholders})'
+        self.cursor.execute(sql_projects, project_ids)
+        projects_dict = {
+            p.id: p for p in [self._map_row_to_model(r) for r in self.cursor.fetchall()]
+        }
+
+        # 2. Busca todas as habilidades para esses projetos de uma vez
+        sql_habilities = f"""
+            SELECT p.id as project_id, h.* FROM Hability h
+            JOIN Project_Habilities ph ON h.id = ph.hability_id
+            JOIN Project p ON p.id = ph.project_id
+            WHERE p.id IN ({placeholders})
+        """
+        self.cursor.execute(sql_habilities, project_ids)
+        for row in self.cursor.fetchall():
+            row: sqlite3.Row
+            row = dict(row)
+            project_id = row.pop('project_id')
+            projects_dict[project_id].habilities.append(self.hability_repo._map_row_to_model(row))
+
+        return list(projects_dict.values())
+
     def get_by_id_with_habilities(self, project_id: int) -> Optional[Project]:
         """Busca um projeto e já carrega suas habilidades necessárias."""
         project = self.get_by_id(project_id)
