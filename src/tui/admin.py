@@ -27,6 +27,8 @@ from src.repositories import (
 from src.use_cases import (
     UpdateProjectUseCase,
 )
+from src.use_cases.register import RegisterUserUseCase
+from src.use_cases.update_user import UpdateUserUseCase
 
 
 class AdminScreen(Screen):
@@ -34,12 +36,22 @@ class AdminScreen(Screen):
 
     BINDINGS = [('escape', 'app.pop_screen', 'Voltar')]
 
-    def __init__(self):
-        self._org_repo = OrganizationRepository()
-        self._proj_repo = ProjectRepository()
-        self._hab_repo = HabilityRepository()
-        self._user_repo = UserRepository()
-        self._update_proj_uc = UpdateProjectUseCase.factory()
+    def __init__(self,
+           organization_repo: OrganizationRepository=None,
+           project_repo: ProjectRepository=None,
+           hability_repo: HabilityRepository=None,
+           user_repo: UserRepository=None,
+           update_project_use_case: UpdateProjectUseCase=None, 
+           register_user_use_case: RegisterUserUseCase=None,   
+           update_user_uc: UpdateUserUseCase=None,
+        ):
+        self._org_repo = organization_repo if organization_repo else OrganizationRepository()
+        self._proj_repo = project_repo if project_repo else ProjectRepository()
+        self._hab_repo = hability_repo if hability_repo else HabilityRepository()
+        self._user_repo = user_repo if user_repo else UserRepository()
+        self._update_proj_uc = update_project_use_case if update_project_use_case else UpdateProjectUseCase.factory()
+        self._register_user_uc = register_user_use_case if register_user_use_case else RegisterUserUseCase.factory()
+        self._update_user_uc = update_user_uc if update_user_uc else UpdateUserUseCase.factory()
         super().__init__()
 
     def _get_org_options(self) -> list[tuple[str, int]]:
@@ -329,7 +341,8 @@ class AdminScreen(Screen):
             radio_set = self.query_one(list_id, RadioSet)
             radio_set.blur()  # Remove o foco para evitar problemas de estado
             if clear_selection:
-                radio_set.pressed_index = -1
+                ...
+                #radio_set.pressed_button = None
             radio_set.remove_children()
             for name, org_id in new_options:
                 rb = RadioButton(name)
@@ -477,7 +490,7 @@ class AdminScreen(Screen):
                     self.query_one('#user-edit-email', Input).value = user.email
                     self.query_one(
                         '#user-edit-role-select', Select
-                    ).value = user.role.value
+                    ).value = user.role
                     edit_form.remove_class('hidden')
 
     @on(Button.Pressed)
@@ -620,12 +633,14 @@ class AdminScreen(Screen):
         # --- Lógica de Usuários ---
         elif event.button.id == 'save-user-button':
             try:
-                user = User(
+                user, error = self._register_user_uc.execute(
                     email=self.query_one('#user-email').value,
                     password=self.query_one('#user-password').value,
-                    role=self.query_one('#user-role-select').value,
                 )
-                self._user_repo.save(user)
+
+                if error is not None:
+                    raise Exception(str(error))
+
                 output_label.update('✅ Usuário salvo com sucesso!')
                 self._clear_and_repopulate_user_lists()
                 self.query_one('#user-email', Input).value = ''
@@ -641,24 +656,20 @@ class AdminScreen(Screen):
                 user_id = getattr(radio_set.pressed_button, 'db_id', None)
 
                 # A senha não é atualizada aqui, apenas outros dados
-                user_to_update = self._user_repo.get_by_id(user_id)
-                if user_to_update:
-                    user_to_update.first_name = self.query_one(
-                        '#user-edit-firstname'
-                    ).value
-                    user_to_update.last_name = self.query_one(
-                        '#user-edit-lastname'
-                    ).value
-                    user_to_update.role = self.query_one(
-                        '#user-edit-role-select'
-                    ).value
 
-                    self._user_repo.save(user_to_update)
-                    output_label.update('✅ Usuário atualizado com sucesso!')
-                    self._clear_and_repopulate_user_lists()
-                    self.query_one('#user-edit-form').add_class('hidden')
-                else:
-                    output_label.update('⚠️ Usuário não encontrado.')
+                user = self._update_user_uc.execute(
+                    id=user_id,
+                    first_name=self.query_one('#user-edit-firstname').value,
+                    last_name=self.query_one('#user-edit-lastname').value,
+                    role=self.query_one('#user-edit-role-select').value,
+                )
+                if user is None:
+                    raise ValueError('Usuário não encontrado.')
+
+                output_label.update('✅ Usuário atualizado com sucesso!')
+                self._clear_and_repopulate_user_lists()
+                self.query_one('#user-edit-form').add_class('hidden')
+                    
             except Exception as e:
                 output_label.update(f'❌ Erro ao atualizar usuário: {e}')
 
