@@ -1,6 +1,5 @@
 [
     {
-        "id": 1,
         "name": "ONG Coração Aberto",
         "description": "Ajudando comunidades carentes com educação e alimentação.",
         "contact_email": "contato@coracaoaberto.org",
@@ -8,7 +7,6 @@
         "website": "https://coracaoaberto.org"
     },
     {
-        "id": 2,
         "name": "Instituto Mãos que Ajudam",
         "description": "Focados em reformas e construção de moradias para famílias em situação de vulnerabilidade.",
         "contact_email": "contato@maosqueajudam.org",
