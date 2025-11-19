@@ -5,7 +5,7 @@ from loguru import logger
 
 from .database import Database
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class BaseRepository:
@@ -43,24 +43,24 @@ class BaseRepository:
         """
         if model_instance.id is None:
             # É um novo registro -> INSERT
-            logger.debug(f'Chamando _create para {model_instance}')
+            logger.debug(f"Chamando _create para {model_instance}")
             return self._create(model_instance)
         else:
             # É um registro existente -> UPDATE
-            logger.debug(f'Chamando _update para {model_instance}')
+            logger.debug(f"Chamando _update para {model_instance}")
             return self._update(model_instance)
 
     def count(self) -> int:
         """Retorna a contagem de registros na tabela."""
-        sql = f'SELECT COUNT(*) FROM {self.table_name}'
+        sql = f"SELECT COUNT(*) FROM {self.table_name}"
         self.cursor.execute(sql)
         return self.cursor.fetchone()[0]
 
     def _pop_relations(self, data):
-        data.pop('organization', None)
-        data.pop('habilities', None)
-        data.pop('projects', None)
-        data.pop('hability_ids', None)
+        data.pop("organization", None)
+        data.pop("habilities", None)
+        data.pop("projects", None)
+        data.pop("hability_ids", None)
         return data
 
     def _create(self, model_instance: T) -> T:
@@ -73,17 +73,15 @@ class BaseRepository:
         data = model_instance.to_dict()
 
         # Remove atributos que não são colunas (como os objetos de relacionamento)
-        data.pop(
-            'id', None
-        )   # Remove 'id' se existir (para não enviar no INSERT)
+        data.pop("id", None)  # Remove 'id' se existir (para não enviar no INSERT)
 
         data = self._pop_relations(data)
 
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['?'] * len(data))
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["?"] * len(data))
         values = list(data.values())
 
-        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
+        sql = f"INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})"
 
         try:
             self.cursor.execute(sql, values)
@@ -95,19 +93,31 @@ class BaseRepository:
             return model_instance
         except sqlite3.Error as e:
             logger.error(f"Erro ao criar em '{self.table_name}': {e}")
-            raise   # Lança a exceção para a camada de serviço tratar
+            raise  # Lança a exceção para a camada de serviço tratar
 
     def get_by_id(self, id: int) -> Optional[T]:
         """Busca um registro pelo ID e o retorna como uma instância do modelo."""
-        sql = f'SELECT * FROM {self.table_name} WHERE id = ?'
+        sql = f"SELECT * FROM {self.table_name} WHERE id = ?"
         self.cursor.execute(sql, (id,))
         row = self.cursor.fetchone()
         return self._map_row_to_model(row)
 
     def find_all(self) -> List[T]:
         """Retorna todos os registros da tabela como uma lista de instâncias do modelo."""
-        sql = f'SELECT * FROM {self.table_name}'
+        sql = f"SELECT * FROM {self.table_name}"
         self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        return [self._map_row_to_model(row) for row in rows]
+
+    def find_paginated(self, page: int = 1, per_page: int = 5):
+        if page < 1:
+            raise ValueError("page must be >= 1")
+
+        offset = (page - 1) * per_page
+
+        sql = f"SELECT * FROM {self.table_name} LIMIT ? OFFSET ?"
+        self.cursor.execute(sql, (per_page, offset))
+
         rows = self.cursor.fetchall()
         return [self._map_row_to_model(row) for row in rows]
 
@@ -117,25 +127,25 @@ class BaseRepository:
         Retorna a instância do modelo atualizada.
         """
         if model_instance.id is None:
-            raise ValueError('Não é possível atualizar um modelo sem ID.')
+            raise ValueError("Não é possível atualizar um modelo sem ID.")
 
         data = model_instance.to_dict().copy()
-        id_val = data.pop('id')
+        id_val = data.pop("id")
 
         data = self._pop_relations(data)
 
-        set_clauses = ', '.join([f'{key} = ?' for key in data.keys()])
+        set_clauses = ", ".join([f"{key} = ?" for key in data.keys()])
         values = list(data.values())
         values.append(id_val)
 
-        sql = f'UPDATE {self.table_name} SET {set_clauses} WHERE id = ?'
+        sql = f"UPDATE {self.table_name} SET {set_clauses} WHERE id = ?"
 
         try:
             self.cursor.execute(sql, values)
             self.conn.commit()
             if self.cursor.rowcount == 0:
                 logger.warning(
-                    f'Aviso: UPDATE em {self.table_name} (id={id_val}) não afetou linhas.'
+                    f"Aviso: UPDATE em {self.table_name} (id={id_val}) não afetou linhas."
                 )
             return model_instance
 
@@ -145,7 +155,7 @@ class BaseRepository:
 
     def delete(self, id: int) -> bool:
         """Deleta um registro pelo ID."""
-        sql = f'DELETE FROM {self.table_name} WHERE id = ?'
+        sql = f"DELETE FROM {self.table_name} WHERE id = ?"
         try:
             self.cursor.execute(sql, (id,))
             self.conn.commit()
