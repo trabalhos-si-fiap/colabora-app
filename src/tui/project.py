@@ -36,7 +36,7 @@ class ProjectScreen(Screen):
         self._project_repo = project_repository
         self.all_projects: list[Project] = []  # projetos da página atual
         self.current_page: int = 1
-        self.per_page: int = 2
+        self.per_page: int = 10
         self.total_pages: int = 1
         super().__init__()
 
@@ -71,24 +71,27 @@ class ProjectScreen(Screen):
                     yield VerticalScroll(
                         id='project-list-container', classes='container'
                     )
-                    yield Static(
-                        'Página 1/1',
-                        id='pagination-info',
-                        classes='pagination-info',
-                    )
-                    with Horizontal(
-                        id='pagination-container',
-                    ):
-                        yield Button(
-                            '← Anterior',
-                            id='prev-page',
-                            classes='page-button',
+                    with Container(classes='full-width h5 center'):
+                        yield Static(
+                            '[b]Página 1/1[/]',
+                            id='pagination-info',
+                            classes='pagination-info text-center',
                         )
-                        yield Button(
-                            'Próxima →',
-                            id='next-page',
-                            classes='page-button',
-                        )
+                        with Horizontal(
+                            id='pagination-container',
+                            classes='full-width h5 center',
+                        ):
+                            yield Button(
+                                '← Anterior',
+                                id='prev-page',
+                                classes='page-button',
+                            )
+                            yield Button(
+                                'Próxima →',
+                                id='next-page',
+                                classes='page-button',
+                            )
+
                 with TabPane('Meus Projetos', id='my-projects-tab'):
                     yield VerticalScroll(
                         id='my-projects-container', classes='container'

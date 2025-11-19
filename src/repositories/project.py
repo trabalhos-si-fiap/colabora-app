@@ -116,7 +116,7 @@ class ProjectRepository(BaseRepository):
     def find_all_with_habilities_paginated(
         self,
         page: int = 1,
-        per_page: int = 2,
+        per_page: int = 10,
     ):
         """
         Busca projetos com habilidades e organização, de forma paginada.
