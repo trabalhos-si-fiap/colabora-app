@@ -3,7 +3,15 @@ from pathlib import Path
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container
-from textual.widgets import Button, Footer, Header, Input, Label, Markdown, Static
+from textual.widgets import (
+    Button,
+    Footer,
+    Header,
+    Input,
+    Label,
+    Markdown,
+    Static,
+)
 
 from src.repositories import (
     HabilityRepository,
@@ -11,8 +19,8 @@ from src.repositories import (
     UserRepository,
 )
 from src.tui.project import ProjectScreen
-from src.tui.user import UserScreen
 from src.tui.register import RegisterScreen
+from src.tui.user import UserScreen
 from src.use_cases import (
     LoginUseCase,
     ReplacePasswordUseCase,

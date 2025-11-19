@@ -53,7 +53,11 @@ class AdminScreen(Screen):
         """Busca usuários e os formata para widgets de seleção."""
         users = self._user_repo.find_all()
         return [
-            (f'{user.first_name or ""} {user.last_name or ""} ({user.email})', user.id) for user in users
+            (
+                f'{user.first_name or ""} {user.last_name or ""} ({user.email})',
+                user.id,
+            )
+            for user in users
         ]
 
     def compose(self) -> ComposeResult:
@@ -69,7 +73,8 @@ class AdminScreen(Screen):
                         # --- Criar Organização ---
                         with TabPane('Criar', id='org-create-tab'):
                             yield Input(
-                                placeholder='Nome da Organização', id='org-name'
+                                placeholder='Nome da Organização',
+                                id='org-name',
                             )
                             yield Input(
                                 placeholder='Descrição',
@@ -219,8 +224,16 @@ class AdminScreen(Screen):
                     with TabbedContent(id='user-crud-tabs'):
                         # --- Criar Usuário ---
                         with TabPane('Criar', id='user-create-tab'):
-                            yield Input(placeholder='E-mail do Usuário', id='user-email')
-                            yield Input(placeholder='Senha', id='user-password', password=True, classes='mt1')
+                            yield Input(
+                                placeholder='E-mail do Usuário',
+                                id='user-email',
+                            )
+                            yield Input(
+                                placeholder='Senha',
+                                id='user-password',
+                                password=True,
+                                classes='mt1',
+                            )
                             yield Select(
                                 [('Admin', Role.ADMIN), ('User', Role.USER)],
                                 prompt='Selecione a Role',
@@ -245,11 +258,25 @@ class AdminScreen(Screen):
                                 yield Static(
                                     'Editando Usuário:', classes='text'
                                 )
-                                yield Input(id='user-edit-firstname', placeholder='Primeiro Nome')
-                                yield Input(id='user-edit-lastname', placeholder='Sobrenome', classes='mt1')
-                                yield Input(id='user-edit-email', disabled=True, classes='mt1')
+                                yield Input(
+                                    id='user-edit-firstname',
+                                    placeholder='Primeiro Nome',
+                                )
+                                yield Input(
+                                    id='user-edit-lastname',
+                                    placeholder='Sobrenome',
+                                    classes='mt1',
+                                )
+                                yield Input(
+                                    id='user-edit-email',
+                                    disabled=True,
+                                    classes='mt1',
+                                )
                                 yield Select(
-                                    [('Admin', Role.ADMIN), ('User', Role.USER)],
+                                    [
+                                        ('Admin', Role.ADMIN),
+                                        ('User', Role.USER),
+                                    ],
                                     prompt='Selecione a Role',
                                     id='user-edit-role-select',
                                 )
@@ -322,9 +349,7 @@ class AdminScreen(Screen):
         delete_list.add_options(new_options)
 
     @on(SelectionList.SelectedChanged, '#org-edit-list')
-    def on_org_selection_changed(
-        self, event: SelectionList.SelectedChanged
-    ):
+    def on_org_selection_changed(self, event: SelectionList.SelectedChanged):
         """Preenche o formulário de edição quando uma organização é selecionada."""
         edit_form = self.query_one('#org-edit-form')
         # Acessa a lista de seleção a partir do evento
@@ -344,17 +369,13 @@ class AdminScreen(Screen):
                 self.query_one(
                     '#org-edit-phone', Input
                 ).value = org.contact_phone
-                self.query_one(
-                    '#org-edit-website', Input
-                ).value = org.website
+                self.query_one('#org-edit-website', Input).value = org.website
                 edit_form.remove_class('hidden')
         else:
             edit_form.add_class('hidden')
 
     @on(SelectionList.SelectedChanged, '#proj-edit-list')
-    def on_proj_selection_changed(
-        self, event: SelectionList.SelectedChanged
-    ):
+    def on_proj_selection_changed(self, event: SelectionList.SelectedChanged):
         """Preenche o formulário de edição quando um projeto é selecionado."""
         edit_form = self.query_one('#proj-edit-form')
         if event.selection_list.selected:
@@ -372,9 +393,7 @@ class AdminScreen(Screen):
                     '#proj-edit-org-select', Select
                 ).value = proj.organization_id
 
-                hab_list = self.query_one(
-                    '#proj-edit-hab-list', SelectionList
-                )
+                hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
                 hab_list.deselect_all()
                 for hability in proj.habilities:
                     hab_list.select(hability.id)
@@ -383,9 +402,7 @@ class AdminScreen(Screen):
             edit_form.add_class('hidden')
 
     @on(SelectionList.SelectedChanged, '#user-edit-list')
-    def on_user_selection_changed(
-        self, event: SelectionList.SelectedChanged
-    ):
+    def on_user_selection_changed(self, event: SelectionList.SelectedChanged):
         """Preenche o formulário de edição quando um usuário é selecionado."""
         edit_form = self.query_one('#user-edit-form')
         if event.selection_list.selected:
@@ -393,8 +410,12 @@ class AdminScreen(Screen):
             user = self._user_repo.get_by_id(user_id)
 
             if user:
-                self.query_one('#user-edit-firstname', Input).value = user.first_name or ''
-                self.query_one('#user-edit-lastname', Input).value = user.last_name or ''
+                self.query_one('#user-edit-firstname', Input).value = (
+                    user.first_name or ''
+                )
+                self.query_one('#user-edit-lastname', Input).value = (
+                    user.last_name or ''
+                )
                 self.query_one('#user-edit-email', Input).value = user.email
                 self.query_one(
                     '#user-edit-role-select', Select
@@ -493,9 +514,7 @@ class AdminScreen(Screen):
                 if not proj_id:
                     raise ValueError('Nenhum projeto selecionado.')
 
-                hab_list = self.query_one(
-                    '#proj-edit-hab-list', SelectionList
-                )
+                hab_list = self.query_one('#proj-edit-hab-list', SelectionList)
 
                 updated_proj = Project(
                     id=proj_id,
@@ -553,9 +572,15 @@ class AdminScreen(Screen):
                 # A senha não é atualizada aqui, apenas outros dados
                 user_to_update = self._user_repo.get_by_id(user_id)
                 if user_to_update:
-                    user_to_update.first_name = self.query_one('#user-edit-firstname').value
-                    user_to_update.last_name = self.query_one('#user-edit-lastname').value
-                    user_to_update.role = self.query_one('#user-edit-role-select').value
+                    user_to_update.first_name = self.query_one(
+                        '#user-edit-firstname'
+                    ).value
+                    user_to_update.last_name = self.query_one(
+                        '#user-edit-lastname'
+                    ).value
+                    user_to_update.role = self.query_one(
+                        '#user-edit-role-select'
+                    ).value
 
                     self._user_repo.save(user_to_update)
                     output_label.update('✅ Usuário atualizado com sucesso!')
@@ -574,8 +599,8 @@ class AdminScreen(Screen):
 
                 # Adicionar verificação para não se auto-deletar
                 if self.app.user and self.app.user.id == user_id:
-                     output_label.update('❌ Você não pode deletar a si mesmo.')
-                     return
+                    output_label.update('❌ Você não pode deletar a si mesmo.')
+                    return
 
                 deleted = self._user_repo.delete(user_id)
                 if deleted:

@@ -13,7 +13,7 @@ from textual.widgets import (
     Static,
 )
 
-from src.models import User, Project
+from src.models import Project, User
 from src.repositories import ProjectRepository, UserRepository
 
 
