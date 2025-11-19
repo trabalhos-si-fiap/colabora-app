@@ -15,7 +15,6 @@ class RegisterScreen(Screen):
         with Container(classes='bg with-border center'):
             yield Markdown('# 📝 Tela de registro 📝')
             yield Label('Crie sua conta', id='title', classes='text')
-            yield Label('', id='output', classes='text')
             yield Input(
                 placeholder='Seu e-mail',
                 id='email-input-register',
@@ -49,16 +48,18 @@ class RegisterScreen(Screen):
         ).value
 
         if password != confirm_password:
-            self.query_one('#output').update('⚠️  As senhas não coincidem.')
+            self.notify('⚠️  As senhas não coincidem.', title='Falha ao cadastrar', severity='error')
             return
 
         user, err = RegisterUserUseCase.factory().execute(email, password)
 
         if err:
-            self.query_one('#output').update('⚠️  ' + str(err))
+            self.notify('⚠️  ' + str(err), title='Falha ao cadastrar', severity='error')
         else:
-            self.app.query_one('#login-output').update(
-                f'Você foi registrado! Agora, faça login.'
+            self.notify(
+                f'Você foi registrado! Agora, faça login.',
+                title='🎉  Registro bem-sucedido  🥳',
+                severity='information',
             )
             self.app.pop_screen()
 

@@ -115,7 +115,7 @@ class ColaboraApp(App):
                     )
                 )
             else:
-                self.query_one('#login-output').update('⚠️  ' + err_msg)
+                self.notify('⚠️  ' + err_msg, title='Erro ao fazer login', severity='error')
 
         elif event.button.id == 'register-button':
             self.push_screen('register')
