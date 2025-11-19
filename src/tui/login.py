@@ -79,7 +79,7 @@ class ColaboraApp(App):
             )
             yield Input(
                 placeholder='Digite a sua senha',
-                value='12345678*A',
+                value='1234567A*',
                 password=True,
                 id='password-input',
                 classes='input-margin',

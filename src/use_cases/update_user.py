@@ -13,7 +13,7 @@ class UpdateUserUseCase:
         if not self._user_repository.exists(id):
             return
 
-        user = self._user_repository.get_by_id_with_habilities(id)
+        user = self._user_repository.get_by_id_with_all_relations(id)
         if not user:
             # Caso de borda: usuário deletado entre as verificações.
             return

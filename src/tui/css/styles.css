@@ -20,7 +20,25 @@ Switch {
     width: auto;
 }
 
+.bg-red {
+    background: red;
+}
 
+.mt {
+    margin-top: 2;
+}
+
+.mx {
+    margin: 0 4;
+}
+
+.pt {
+    padding-top: 2;
+}
+
+.pb {
+    padding-bottom: 2;
+}
 
 .label-switch {
     height: 3;
@@ -40,7 +58,6 @@ Switch {
 .input-margin-sm {
     margin: 1 4;
 }
-
 
 .small-input {
     width: 31%;

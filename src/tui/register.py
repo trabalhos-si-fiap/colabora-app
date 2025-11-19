@@ -57,7 +57,7 @@ class RegisterScreen(Screen):
         if err:
             self.query_one('#output').update('⚠️  ' + str(err))
         else:
-            self.app.query_one('#output').update(
+            self.app.query_one('#login-output').update(
                 f'Você foi registrado! Agora, faça login.'
             )
             self.app.pop_screen()
