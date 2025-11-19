@@ -102,7 +102,7 @@ class AdminScreen(Screen):
             yield Static('Painel Administrativo', classes='text title')
             yield Label('', id='admin-output', classes='text')
 
-            with TabbedContent(id='main-tabs'):
+            with TabbedContent(id='main-tabs', classes='input-margin'):
                 # --- Aba de Organizações ---
                 with TabPane('Organizações', id='org-tab'):
                     with TabbedContent(id='org-crud-tabs'):
@@ -111,75 +111,99 @@ class AdminScreen(Screen):
                             yield Input(
                                 placeholder='Nome da Organização',
                                 id='org-name',
+                                classes='input-margin-sm',
                             )
                             yield Input(
                                 placeholder='Descrição',
                                 id='org-description',
-                                classes='mt1',
+                                classes='input-margin-sm',
                             )
                             yield Input(
                                 placeholder='E-mail de Contato',
                                 id='org-email',
-                                classes='mt1',
+                                classes='input-margin-sm',
                             )
                             yield Input(
                                 placeholder='Telefone de Contato',
                                 id='org-phone',
-                                classes='mt1',
+                                classes='input-margin-sm',
                             )
                             yield Input(
                                 placeholder='Website',
                                 id='org-website',
-                                classes='mt1',
+                                classes='input-margin-sm',
                             )
-                            yield Button(
-                                'Salvar Nova Organização',
-                                variant='primary',
-                                id='save-org-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center'):
+                                yield Button(
+                                    'Salvar Nova Organização',
+                                    variant='primary',
+                                    id='save-org-button',
+                                    classes='',
+                                )
                         # --- Listar/Editar Organização ---
-                        with TabPane('Listar/Editar', id='org-edit-tab'):
-                            with RadioSet(id='org-edit-list'):
+                        with TabPane('Listar/Editar', id='org-edit-tab', classes='mt1'):
+                            with RadioSet(id='org-edit-list', classes='mx4'):
                                 for name, org_id in self._get_org_options():
                                     rb = RadioButton(name)
                                     rb.db_id = org_id
                                     yield rb
 
                             with Container(
-                                id='org-edit-form', classes='hidden'
+                                id='org-edit-form', classes='hidden full-width h-auto'
                             ):
                                 yield Static(
                                     'Editando Organização:', classes='text mb1'
                                 )
                                 yield Label(
-                                    '', id='org-edit-id-label', classes='text'
+                                    '[b]Selecione uma Organização para editar.[/]', id='org-edit-id-label', classes='text'
                                 )
-                                yield Input(id='org-edit-name')
-                                yield Input(id='org-edit-description')
-                                yield Input(id='org-edit-email')
-                                yield Input(id='org-edit-phone')
-                                yield Input(id='org-edit-website')
-                                yield Button(
-                                    'Salvar Alterações',
-                                    id='update-org-button',
-                                    variant='success',
-                                )
+                                
+                                yield Input(
+                                    id='org-edit-name',
+                                     classes='input-margin-sm',
+                                     disabled=True
+                                     )
+                                yield Input(
+                                    id='org-edit-description',
+                                     classes='input-margin-sm',
+                                     disabled=True
+                                     )
+                                yield Input(
+                                    id='org-edit-email',
+                                     classes='input-margin-sm',
+                                     disabled=True
+                                     )
+                                yield Input(
+                                    id='org-edit-phone',
+                                     classes='input-margin-sm',
+                                     disabled=True
+                                     )
+                                yield Input(
+                                    id='org-edit-website',
+                                     classes='input-margin-sm',
+                                     disabled=True
+                                     )
+                                with Container(classes='full-width h3 center'):
+                                    yield Button(
+                                        'Salvar Alterações',
+                                        id='update-org-button',
+                                        variant='success',
+                                        disabled=True
+                                    )
 
                         # --- Deletar Organização ---
-                        with TabPane('Deletar', id='org-delete-tab'):
-                            with RadioSet(id='org-delete-list'):
+                        with TabPane('Deletar', id='org-delete-tab', classes='mt1'):
+                            with RadioSet(id='org-delete-list', classes='mx4'):
                                 for name, org_id in self._get_org_options():
                                     rb = RadioButton(name)
                                     rb.db_id = org_id
                                     yield rb
-
-                            yield Button(
-                                'Deletar Selecionada',
-                                variant='error',
-                                id='delete-org-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center mt1'):
+                                yield Button(
+                                    'Deletar Selecionada',
+                                    variant='error',
+                                    id='delete-org-button',
+                                )
 
                 # --- Aba de Projetos ---
                 with TabPane('Projetos', id='proj-tab'):
@@ -187,87 +211,97 @@ class AdminScreen(Screen):
                         # --- Criar Projeto ---
                         with TabPane('Criar', id='proj-create-tab'):
                             yield Input(
+                                classes='input-margin-sm',
                                 placeholder='Nome do Projeto', id='proj-name'
                             )
                             yield Input(
+                                classes='input-margin-sm',
                                 placeholder='Descrição do Projeto',
                                 id='proj-description',
-                                classes='mt1',
                             )
                             yield Select(
                                 self._get_org_options(),
+                                classes='input-margin-sm',
                                 prompt='Selecione a Organização',
                                 id='proj-org-select',
                             )
                             yield Label(
-                                'Habilidades Necessárias:',
+                                '[b]Habilidades Necessárias:[/]',
                                 classes='text mt1',
                             )
                             yield SelectionList[int](
-                                *self._get_hab_options(), id='proj-hab-list'
+                                *self._get_hab_options(), id='proj-hab-list',
+                                classes='input-margin-sm',
                             )
-                            yield Button(
-                                'Salvar Novo Projeto',
-                                variant='primary',
-                                id='save-proj-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center mt1'):
+                                yield Button(
+                                    'Salvar Novo Projeto',
+                                    variant='primary',
+                                    id='save-proj-button',
+                                )
 
                         # --- Listar/Editar Projeto ---
-                        with TabPane('Listar/Editar', id='proj-edit-tab'):
-                            with RadioSet(id='proj-edit-list'):
+                        with TabPane('Listar/Editar', id='proj-edit-tab', classes='mt1'):
+                            with RadioSet(id='proj-edit-list', classes='mx4'):
                                 for name, proj_id in self._get_proj_options():
                                     rb = RadioButton(name)
                                     rb.db_id = proj_id
                                     yield rb
 
                             with Container(
-                                id='proj-edit-form', classes='hidden'
+                                id='proj-edit-form', classes='hidden full-width h-auto'
                             ):
                                 yield Static(
                                     'Editando Projeto:', classes='text mb1'
                                 )
                                 yield Label(
-                                    '', id='proj-edit-id-label', classes='text'
+                                    '[b]Selecione um projeto para editar[/]', id='proj-edit-id-label', classes='text'
                                 )
-                                yield Input(id='proj-edit-name')
                                 yield Input(
-                                    id='proj-edit-description', classes='mt1'
+                                    id='proj-edit-name',
+                                    classes='input-margin-sm',
+                                )
+                                
+                                yield Input(
+                                    id='proj-edit-description',
+                                    classes='input-margin-sm',
                                 )
                                 yield Select(
                                     self._get_org_options(),
                                     prompt='Selecione a Organização',
                                     id='proj-edit-org-select',
+                                    classes='input-margin-sm',
                                 )
                                 yield Label(
-                                    'Habilidades Necessárias:',
+                                    '[b]Habilidades Necessárias:[/]',
                                     classes='text mt1',
                                 )
                                 yield SelectionList[int](
                                     *self._get_hab_options(),
                                     id='proj-edit-hab-list',
+                                    classes='input-margin-sm',
                                 )
-                                yield Button(
-                                    'Salvar Alterações',
-                                    id='update-proj-button',
-                                    variant='success',
-                                    classes='mt1',
-                                )
+                                with Container(classes='full-width h3 center mt1'):
+                                    yield Button(
+                                        'Salvar Alterações',
+                                        id='update-proj-button',
+                                        variant='success',
+                                    )
 
                         # --- Deletar Projeto ---
-                        with TabPane('Deletar', id='proj-delete-tab'):
-                            with RadioSet(id='proj-delete-list'):
+                        with TabPane('Deletar', id='proj-delete-tab', classes='mt1'):
+                            with RadioSet(id='proj-delete-list', classes='mx4'):
                                 for name, proj_id in self._get_proj_options():
                                     rb = RadioButton(name)
                                     rb.db_id = proj_id
                                     yield rb
 
-                            yield Button(
-                                'Deletar Selecionado',
-                                variant='error',
-                                id='delete-proj-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center mt1'):
+                                yield Button(
+                                    'Deletar Selecionado',
+                                    variant='error',
+                                    id='delete-proj-button',
+                                )
 
                 # --- Aba de Usuários ---
                 with TabPane('Usuários', id='user-tab'):
@@ -275,37 +309,39 @@ class AdminScreen(Screen):
                         # --- Criar Usuário ---
                         with TabPane('Criar', id='user-create-tab'):
                             yield Input(
+                                classes='input-margin-sm',
                                 placeholder='E-mail do Usuário',
                                 id='user-email',
                             )
                             yield Input(
+                                classes='input-margin-sm',
                                 placeholder='Senha',
                                 id='user-password',
                                 password=True,
-                                classes='mt1',
                             )
                             yield Select(
                                 [('Admin', Role.ADMIN), ('User', Role.USER)],
                                 prompt='Selecione a Role',
                                 id='user-role-select',
+                                classes='input-margin-sm',
                             )
-                            yield Button(
-                                'Salvar Novo Usuário',
-                                variant='primary',
-                                id='save-user-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center mt1'):
+                                yield Button(
+                                    'Salvar Novo Usuário',
+                                    variant='primary',
+                                    id='save-user-button',
+                                )
 
                         # --- Listar/Editar Usuário ---
-                        with TabPane('Listar/Editar', id='user-edit-tab'):
-                            with RadioSet(id='user-edit-list'):
+                        with TabPane('Listar/Editar', id='user-edit-tab', classes='mt1'):
+                            with RadioSet(id='user-edit-list', classes='mx4'):
                                 for name, user_id in self._get_user_options():
                                     rb = RadioButton(name)
                                     rb.db_id = user_id
                                     yield rb
 
                             with Container(
-                                id='user-edit-form', classes='hidden'
+                                id='user-edit-form', classes='hidden full-width h-auto'
                             ):
                                 yield Static(
                                     'Editando Usuário:', classes='text mb1'
@@ -314,18 +350,19 @@ class AdminScreen(Screen):
                                     '', id='user-edit-id-label', classes='text'
                                 )
                                 yield Input(
+                                    classes='input-margin-sm',
                                     id='user-edit-firstname',
                                     placeholder='Primeiro Nome',
                                 )
                                 yield Input(
+                                    classes='input-margin-sm',
                                     id='user-edit-lastname',
                                     placeholder='Sobrenome',
-                                    classes='mt1',
                                 )
                                 yield Input(
+                                    classes='input-margin-sm',
                                     id='user-edit-email',
                                     disabled=True,
-                                    classes='mt1',
                                 )
                                 yield Select(
                                     [
@@ -334,28 +371,28 @@ class AdminScreen(Screen):
                                     ],
                                     prompt='Selecione a Role',
                                     id='user-edit-role-select',
+                                    classes='input-margin-sm',
                                 )
-                                yield Button(
-                                    'Salvar Alterações',
-                                    id='update-user-button',
-                                    variant='success',
-                                    classes='mt1',
-                                )
+                                with Container(classes='full-width h3 center mt1'):
+                                    yield Button(
+                                        'Salvar Alterações',
+                                        id='update-user-button',
+                                        variant='success',
+                                    )
 
                         # --- Deletar Usuário ---
-                        with TabPane('Deletar', id='user-delete-tab'):
-                            with RadioSet(id='user-delete-list'):
+                        with TabPane('Deletar', id='user-delete-tab', classes='mt1'):
+                            with RadioSet(id='user-delete-list', classes='mx4'):
                                 for name, user_id in self._get_user_options():
                                     rb = RadioButton(name)
                                     rb.db_id = user_id
                                     yield rb
-
-                            yield Button(
-                                'Deletar Selecionado',
-                                variant='error',
-                                id='delete-user-button',
-                                classes='mt1',
-                            )
+                            with Container(classes='full-width h3 center mt1'):
+                                yield Button(
+                                    'Deletar Selecionado',
+                                    variant='error',
+                                    id='delete-user-button',
+                                )
 
         yield Footer()
 
@@ -455,7 +492,17 @@ class AdminScreen(Screen):
                     self.query_one(
                         '#org-edit-website', Input
                     ).value = org.website
+                    # Habilita todos os inputs no formulário de edição
+                    for input_widget in edit_form.query(Input):
+                        input_widget.disabled = False
+                    
+                    edit_form.query_one(Button).disabled = False
                     edit_form.remove_class('hidden')
+        else:
+            # Esconde o formulário e desabilita os inputs se nada for selecionado
+            for input_widget in edit_form.query(Input):
+                input_widget.disabled = True
+            edit_form.add_class('hidden')
 
     @on(RadioSet.Changed, '#proj-edit-list')
     def on_proj_selection_changed(self, event: RadioSet.Changed):
@@ -539,14 +586,14 @@ class AdminScreen(Screen):
                     website=self.query_one('#org-website').value,
                 )
                 self._org_repo.save(org)
-                output_label.update('✅ Organização salva com sucesso!')
+                self.notify('✅ Organização salva com sucesso!')
                 self._repopulate_org_radio_sets(clear_selection=True)
                 self._repopulate_org_selects()
                 for input_widget in self.query('Input'):
                     if input_widget.id.startswith('org-'):
                         input_widget.value = ''
             except Exception as e:
-                output_label.update(f'❌ Erro ao salvar organização: {e}')
+                self.notify(f'❌ Erro ao salvar organização: {e}', severity='error')
 
         elif event.button.id == 'update-org-button':
             try:
@@ -564,12 +611,12 @@ class AdminScreen(Screen):
                     website=self.query_one('#org-edit-website').value,
                 )
                 self._org_repo.save(updated_org)
-                output_label.update('✅ Organização atualizada com sucesso!')
+                self.notify('✅ Organização atualizada com sucesso!')
                 self._repopulate_org_radio_sets(clear_selection=False)
                 self._repopulate_org_selects()
                 self.query_one('#org-edit-form').add_class('hidden')
             except Exception as e:
-                output_label.update(f'❌ Erro ao atualizar organização: {e}')
+                self.notify(f'❌ Erro ao atualizar organização: {e}', severity='error')
 
         elif event.button.id == 'delete-org-button':
             try:
@@ -580,13 +627,13 @@ class AdminScreen(Screen):
 
                 deleted = self._org_repo.delete(org_id)
                 if deleted:
-                    output_label.update('✅ Organização deletada com sucesso!')
+                    self.notify('✅ Organização deletada com sucesso!')
                     self._repopulate_org_radio_sets(clear_selection=True)
                     self._repopulate_org_selects()
                 else:
-                    output_label.update('⚠️ Organização não encontrada.')
+                    self.notify('⚠️ Organização não encontrada.')
             except Exception as e:
-                output_label.update(f'❌ Erro ao deletar organização: {e}')
+                self.notify(f'❌ Erro ao deletar organização: {e}', severity='error')
 
         # --- Lógica de Projetos ---
         elif event.button.id == 'save-proj-button':
@@ -605,7 +652,7 @@ class AdminScreen(Screen):
                 )
 
                 self._proj_repo.save(proj)
-                output_label.update('✅ Projeto salvo com sucesso!')
+                self.notify('✅ Projeto salvo com sucesso!')
                 self._clear_and_repopulate_proj_lists()
                 for widget in self.query():
                     if isinstance(widget, Input) and widget.id.startswith(
@@ -614,7 +661,7 @@ class AdminScreen(Screen):
                         widget.value = ''
                 hab_list.deselect_all()
             except Exception as e:
-                output_label.update(f'❌ Erro ao salvar projeto: {e}')
+                self.notify(f'❌ Erro ao salvar projeto: {e}', severity='error')
 
         elif event.button.id == 'update-proj-button':
             try:
@@ -641,13 +688,13 @@ class AdminScreen(Screen):
                 )
 
                 if updated_proj:
-                    output_label.update('✅ Projeto atualizado com sucesso!')
+                    self.notify('✅ Projeto atualizado com sucesso!')
                     self._clear_and_repopulate_proj_lists()
                     self.query_one('#proj-edit-form').add_class('hidden')
                 else:
-                    output_label.update('❌ Erro ao atualizar projeto.')
+                    self.notify('❌ Erro ao atualizar projeto.', severity='error')
             except Exception as e:
-                output_label.update(f'❌ Erro ao atualizar projeto: {e}')
+                self.notify(f'❌ Erro ao atualizar projeto: {e}', severity='error')
 
         elif event.button.id == 'delete-proj-button':
             try:
@@ -658,12 +705,12 @@ class AdminScreen(Screen):
 
                 deleted = self._proj_repo.delete(proj_id)
                 if deleted:
-                    output_label.update('✅ Projeto deletado com sucesso!')
+                    self.notify('✅ Projeto deletado com sucesso!')
                     self._clear_and_repopulate_proj_lists()
                 else:
-                    output_label.update('⚠️ Projeto não encontrado.')
+                    self.notify('⚠️ Projeto não encontrado.')
             except Exception as e:
-                output_label.update(f'❌ Erro ao deletar projeto: {e}')
+                self.notify(f'❌ Erro ao deletar projeto: {e}', severity='error')
 
         # --- Lógica de Usuários ---
         elif event.button.id == 'save-user-button':
@@ -676,12 +723,12 @@ class AdminScreen(Screen):
                 if error is not None:
                     raise Exception(str(error))
 
-                output_label.update('✅ Usuário salvo com sucesso!')
+                self.notify('✅ Usuário salvo com sucesso!')
                 self._clear_and_repopulate_user_lists()
                 self.query_one('#user-email', Input).value = ''
                 self.query_one('#user-password', Input).value = ''
             except Exception as e:
-                output_label.update(f'❌ Erro ao salvar usuário: {e}')
+                self.notify(f'❌ Erro ao salvar usuário: {e}', severity='error')
 
         elif event.button.id == 'update-user-button':
             try:
@@ -701,12 +748,12 @@ class AdminScreen(Screen):
                 if user is None:
                     raise ValueError('Usuário não encontrado.')
 
-                output_label.update('✅ Usuário atualizado com sucesso!')
+                self.notify('✅ Usuário atualizado com sucesso!')
                 self._clear_and_repopulate_user_lists()
                 self.query_one('#user-edit-form').add_class('hidden')
 
             except Exception as e:
-                output_label.update(f'❌ Erro ao atualizar usuário: {e}')
+                self.notify(f'❌ Erro ao atualizar usuário: {e}', severity='error')
 
         elif event.button.id == 'delete-user-button':
             try:
@@ -717,14 +764,14 @@ class AdminScreen(Screen):
 
                 # Adicionar verificação para não se auto-deletar
                 if self._user_logged and self._user_logged.id == user_id:
-                    output_label.update('❌ Você não pode deletar a si mesmo.')
+                    self.notify('❌ Você não pode deletar a si mesmo.', severity='error')
                     return
 
                 deleted = self._user_repo.delete(user_id)
                 if deleted:
-                    output_label.update('✅ Usuário deletado com sucesso!')
+                    self.notify('✅ Usuário deletado com sucesso!')
                     self._clear_and_repopulate_user_lists()
                 else:
-                    output_label.update('⚠️ Usuário não encontrado.')
+                    self.notify('⚠️ Usuário não encontrado.')
             except Exception as e:
-                output_label.update(f'❌ Erro ao deletar usuário: {e}')
+                self.notify(f'❌ Erro ao deletar usuário: {e}', severity='error')
