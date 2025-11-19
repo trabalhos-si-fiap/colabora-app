@@ -32,7 +32,7 @@ def test_update_user_basic_info_and_preserve_habilities(
     user_repo.save(user)
 
     # Confirma o estado inicial
-    user_before = user_repo.get_by_id_with_habilities(user.id)
+    user_before = user_repo.get_by_id_with_all_relations(user.id)
     assert user_before.first_name is None
     assert len(user_before.habilities) == 2
 
@@ -47,7 +47,7 @@ def test_update_user_basic_info_and_preserve_habilities(
     assert updated_user.last_name == 'Doe'
 
     # Verifica o estado final no banco de dados
-    user_after = user_repo.get_by_id_with_habilities(user.id)
+    user_after = user_repo.get_by_id_with_all_relations(user.id)
     assert user_after.first_name == 'John'
     assert (
         len(user_after.habilities) == 2
@@ -136,7 +136,7 @@ def test_update_user_fails_if_user_vanishes_between_checks(
 
     # Simula que o usuário "desapareceu" entre a verificação `exists` e a `get`
     with patch.object(
-        user_repo, 'get_by_id_with_habilities', return_value=None
+        user_repo, 'get_by_id_with_all_relations', return_value=None
     ):
         # Act
         result = use_case.execute(id=user.id, first_name='Vanished')

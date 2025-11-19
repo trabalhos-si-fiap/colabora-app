@@ -106,13 +106,6 @@ class UserRepository(BaseRepository):
         row = self.cursor.fetchone()
         return self._map_row_to_model(row)
 
-    def get_by_id_with_habilities(self, user_id: int) -> Optional[User]:
-        """Busca um usuário e já carrega suas habilidades."""
-        user = self.get_by_id(user_id)
-        if user:
-            user.habilities = self.get_habilities_for_user(user_id)
-        return user
-
     def get_by_id_with_all_relations(self, user_id: int) -> Optional[User]:
         """Busca um usuário e carrega todas as suas relações (habilidades e projetos)."""
         user = self.get_by_id(user_id)

@@ -138,7 +138,7 @@ def test_replace_password_fails_if_user_vanishes_between_checks(
 
     # Simula que o usuário "desapareceu" entre a verificação `exists` e a `get`
     with patch.object(
-        user_repo, 'get_by_id_with_habilities', return_value=None
+        user_repo, 'get_by_id_with_all_relations', return_value=None
     ):
         # Act
         success, error = use_case.execute(

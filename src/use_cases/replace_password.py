@@ -22,7 +22,7 @@ class ReplacePasswordUseCase:
         if not self.user_repository.exists(id):
             return False, 'Usuário não encontrado.'
 
-        user = self.user_repository.get_by_id_with_habilities(id)
+        user = self.user_repository.get_by_id_with_all_relations(id)
         if not user:
             return False, 'Usuário não encontrado.'
 
