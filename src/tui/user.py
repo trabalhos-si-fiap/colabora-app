@@ -12,6 +12,7 @@ from textual.widgets import (
     Label,
     Static,
     Switch,
+    Digits
 )
 
 from src.models import Role, User
@@ -62,16 +63,15 @@ class UserScreen(Screen):
     def compose(self) -> ComposeResult:        
         yield Header(show_clock=True)
         with VerticalScroll(classes='bg with-border'):
-            yield Static(
-                f'Olá, {self.user.first_name or self.user.email}!',
+            yield Label(
+                f'[b] Olá, {self.user.first_name or self.user.email}! [/]',
                 classes='text title',
             )
-            yield Static('Edite suas informações:', classes='text')
-            yield Label('#', id='output', classes='text')
+            yield Label('Edite suas informações:', classes='text')
 
             with Horizontal(classes='horizontal-inputs'):
-                yield Label('Nome', classes='small-input text-center')
-                yield Label('Sobrenome', classes='small-input text-center')
+                yield Label('[b] Nome [/]', classes='small-input text-center')
+                yield Label('[b] Sobrenome [/]', classes='small-input text-center')
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Input(
@@ -89,9 +89,9 @@ class UserScreen(Screen):
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Label(
-                    'Data de Nascimento', classes='small-input text-center'
+                    '[b] Data de Nascimento [/]', classes='small-input text-center'
                 )
-                yield Label('E-mail', classes='small-input text-center')
+                yield Label('[b] E-mail [/]', classes='small-input text-center')
 
             with Horizontal(classes='horizontal-inputs'):
                 yield Input(
@@ -106,21 +106,22 @@ class UserScreen(Screen):
                     value=self.user.email, classes='small-input', disabled=True
                 )
 
-            with Horizontal(classes='horizontal-inputs'):
-                yield Label('Projetos', classes='small-input text-center')
-                yield Label('Habilidades', classes='small-input text-center')
+            with Horizontal(classes='center full-width container my'):
+                with Container(classes='with-border projects-habilities'):
+                    yield Label('[b] Projetos [/]', classes='small-input text-center mb1')
+                    yield Digits(
+                        f'{len(self.user.projects)}',
+                        id='projects-count',
+                        classes='small-input text-center',
+                    )
 
-            with Horizontal(classes='horizontal-inputs'):
-                yield Label(
-                    f'{len(self.user.projects)}',
-                    id='projects-count',
-                    classes='small-input small-input text-center',
-                )
-                yield Label(
-                    f'{len(self.user.habilities)}',
-                    id='habilities-count',
-                    classes='small-input small-input text-center',
-                )
+                with Container(classes='with-border projects-habilities'):
+                    yield Label('[b] Habilidades [/]', classes='small-input text-center mb1')
+                    yield Digits(
+                        f'{len(self.user.habilities)}',
+                        id='habilities-count',
+                        classes='small-input text-center',
+                    )
 
             with Collapsible(title='Trocar senha', classes='input-margin'):
                 yield Label('', id='output-pw', classes='text')
@@ -141,19 +142,20 @@ class UserScreen(Screen):
                         'Salvar', variant='primary', id='save-password-button'
                     )
 
-            yield Static('Selecione suas habilidades:', classes='text')
-            with VerticalScroll(classes='center input-margin'):
-                for domain in self.habilities_data.keys():
-                    with Collapsible(title=domain):
-                        for hability in self.habilities_data[domain]:
-                            yield Horizontal(
-                                Switch(
-                                    value=self.user.has_hability(hability),
-                                    name=hability.name,
-                                ),
-                                Static(hability.name, classes='label-switch'),
-                                classes='container',
-                            )
+            with Container(classes='full-width h-auto'):
+                yield Label('[b]Selecione suas habilidades: [/]', classes='text')
+                with VerticalScroll(classes='center h-auto input-margin'):
+                    for domain in self.habilities_data.keys():
+                        with Collapsible(title=domain):
+                            for hability in self.habilities_data[domain]:
+                                yield Horizontal(
+                                    Switch(
+                                        value=self.user.has_hability(hability),
+                                        name=hability.name,
+                                    ),
+                                    Static(hability.name, classes='label-switch'),
+                                    classes='container',
+                                )
 
             with Container(classes='buttons'):
                 yield Button(
@@ -191,8 +193,10 @@ class UserScreen(Screen):
             self.query_one('#habilities-count').update(
                 f'{len(self.user.habilities)}'
             )
-            self.query_one('#output').update(
-                f'✅ alterações salvas com sucesso!'
+            self.notify(
+                f'✅ alterações salvas com sucesso!',
+                title='🤓 ☝️  Informações salvas 💾',
+                severity='information',
             )
 
         elif event.button.id == 'save-password-button':

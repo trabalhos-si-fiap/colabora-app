@@ -28,6 +28,10 @@ Switch {
     margin-top: 2;
 }
 
+.my {
+    padding: 1 0 ;
+}
+
 .mx {
     margin: 0 4;
 }
@@ -38,6 +42,10 @@ Switch {
 
 .pb {
     padding-bottom: 2;
+}
+
+.mb1 {
+    margin-bottom: 1;
 }
 
 .label-switch {
@@ -56,7 +64,7 @@ Switch {
 }
 
 .input-margin-sm {
-    margin: 1 4;
+    margin: 1 2;
 }
 
 .small-input {
@@ -78,8 +86,27 @@ Switch {
     background: rgb(13, 49, 49);
 }
 
+.bg-b {
+    background: blue;
+}
+
+.bg-y {
+    background: rgb(129, 202, 12);
+}
+
 .with-border {
     border: heavy rgb(12, 145, 12);
+}
+
+.full-width {
+    width: 100%;
+}
+
+.projects-habilities {
+    /* background: red; */
+    height: 10;
+    align: center middle;
+    width: 42;
 }
 
 .btn-save-pw {
@@ -97,6 +124,10 @@ Switch {
     height: 20%;
 }
 
+.h-auto {
+    height: auto;
+}
+
 .text-center {
     text-align: center;
 }
@@ -109,7 +140,6 @@ Switch {
 }
 
 .buttons {
-    /* background: rgb(129, 202, 12); */
     layout: horizontal;
     align: center middle;
     width: 100%;
