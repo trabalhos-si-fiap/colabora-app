@@ -137,18 +137,27 @@ class ProjectScreen(Screen):
             children.append(Static(f' {icon} {hability.name}', classes='text'))
 
         if self.user:
-            is_subscribed = self.user.is_subscribed_to(project)
-            children.append(
-                Container(
-                    Button(
-                    'Desinscrever-se' if is_subscribed else 'Inscrever-se',
-                    variant='error' if is_subscribed else 'success',
-                    id=f'subscribe_btn_{project.id}',
-                    classes='subscribe-button center',
-                    ),
-                    classes='btn-save-pw mt'   
-                )
+            user_has_any_hability = any(
+                self.user.has_hability(h) for h in project.habilities
             )
+
+            if user_has_any_hability:
+                is_subscribed = self.user.is_subscribed_to(project)
+                children.append(
+                    Container(
+                        Button(
+                            'Desinscrever-se'
+                            if is_subscribed
+                            else 'Inscrever-se',
+                            variant='error' if is_subscribed else 'success',
+                            id=f'subscribe_btn_{project.id}',
+                            classes='subscribe-button center',
+                        ),
+                        classes='btn-save-pw mt',
+                    )
+                )
+            else:
+                children.append(Static('\n[i]Você não tem ao menos uma habilidade solicitada.[/i]', classes='text-center warning'))
 
         collapsible = Collapsible(
             *children, 
