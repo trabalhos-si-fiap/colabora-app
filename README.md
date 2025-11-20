@@ -10,7 +10,8 @@ Colabora é uma aplicação de interface de texto (TUI) construída com [Textual
 </p>
 
 <p align="center">
-  <img src="docs/assets/p3.png" alt="Screenshot da tela inicial" width="50%">
+  <img src="docs/assets/p3.png" alt="Screenshot da tela inicial" width="49%">
+  <img src="docs/assets/p4.png" alt="Screenshot da tela projetos" width="49%">
 </p>
 
 ---
